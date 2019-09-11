@@ -10,8 +10,9 @@ class main:
         self.old_y = None
         self.penwidth = 5
         self.drawWidgets()
-        self.c.bind('<B1-Motion>',self.paint) #desenhar com o movimento do mouse
-        self.c.bind('<ButtonRelease-1>',self.reset) #parar de desenhar quando soltar o botão
+        self.c.bind('<B1-Motion>',self.paint) #evento de movimento do mouse
+        self.c.bind('<Button-1>',self.paintdot) #evento quando clica com botão do mouse
+        self.c.bind('<ButtonRelease-1>',self.reset) #evento quando soltar o botão do mouse
 
     def paint(self,e):
         if self.old_x and self.old_y:
@@ -19,6 +20,15 @@ class main:
 
         self.old_x = e.x
         self.old_y = e.y
+
+    def paintdot(self,e):
+        x1, y1 = ( e.x ), ( e.y )
+        self.c.create_line(x1,y1,e.x,e.y,width=self.penwidth,fill=self.color_fg,capstyle=ROUND,smooth=True)
+        #self.old_x = e.x
+        #self.old_y = e.y
+        #x1, y1 = ( e.x - 1 ), ( e.y - 1 )
+        #x2, y2 = ( e.x + 1 ), ( e.y + 1 )
+        #self.c.create_oval( x1, y1, x2, y2, width=self.penwidth,fill=self.color_fg,)
 
     def reset(self,e):   
         self.old_x = None
@@ -41,12 +51,12 @@ class main:
     def drawWidgets(self):
         self.controls = Frame(self.master,padx = 5,pady = 5)
         Label(self.controls, text='Raio pincel:',font=('arial 18')).grid(row=0,column=0)
-        self.slider = ttk.Scale(self.controls,from_= 5, to = 100,command=self.changeW,orient=VERTICAL)
+        self.slider = ttk.Scale(self.controls,from_= 200, to = 1,command=self.changeW,orient=VERTICAL)
         self.slider.set(self.penwidth)
         self.slider.grid(row=0,column=1,ipadx=30)
         self.controls.pack(side=LEFT)
         
-        self.c = Canvas(self.master,width=500,height=400,bg=self.color_bg,)
+        self.c = Canvas(self.master,width=500,height=400,bg=self.color_bg, cursor='circle')
         self.c.pack(fill=BOTH,expand=True)
 
         menu = Menu(self.master)
