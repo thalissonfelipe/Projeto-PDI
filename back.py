@@ -36,6 +36,25 @@ def histogram(img):
 			hist[pxl] += 1
 	return hist
 
+def equalizeHist(hist):
+	n = len(hist)
+	prob = [0]*n
+	proba = [0]*n
+	hist_equalizado = [0]*n
+	total_pxl = 0
+
+	for h in hist:
+		total_pxl += h 
+
+	prob[0] = hist[0]/total_pxl
+	proba[0] = prob[0]
+	for i in range(1, n):
+		prob[i] = hist[i]/total_pxl
+		proba[i] = prob[i] + proba[i-1]
+
+	hist_equalizado = [int(i*255) for i in proba]
+	return hist_equalizado
+
 #TODO: implementar transformada de Fourier
 #def ft(img):
 #	fn = np.zeros(img.shape)
@@ -49,7 +68,8 @@ if __name__ == '__main__':
 	#it = negative_transform(i)
 	#it = gamma_transform(i, 1, 3)
 	hist = histogram(i)
-	plt.hist(i.ravel(),256,[0,256]); plt.show()
-	plt.hist(hist); plt.show()
+	hist_equalizado = equalizeHist(hist)
+	#plt.hist(i.ravel(),256,[0,256]); plt.show()
+	plt.hist(hist_equalizado); plt.show()
 	#imshow(i)
 	
