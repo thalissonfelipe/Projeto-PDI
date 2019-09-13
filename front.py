@@ -1,5 +1,8 @@
+import imageio
 from tkinter import *
 from tkinter import ttk, colorchooser
+from PIL import ImageTk, Image
+
 
 class main:
     def __init__(self,master):
@@ -48,8 +51,10 @@ class main:
         self.c['bg'] = self.color_bg
 
     def loadimg(self):
-        img = PhotoImage(file="perfil.jpg")
-        self.c.create_image(20,20, anchor=NW, image=img)
+        img = Image.open('images/einstein.jpeg')
+        self.c.image = ImageTk.PhotoImage(img)
+        self.c.create_image(0,0, anchor=NW, image=self.c.image)
+        self.c.pack()
 
     def drawWidgets(self):
         self.controls = Frame(self.master,padx = 5,pady = 5)
@@ -59,7 +64,7 @@ class main:
         self.slider.grid(row=0,column=1,ipadx=30)
         self.controls.pack(side=LEFT)
 
-        Button(self.controls, text="OK",command=self.loadimg).grid(row=1,column=0)
+        Button(self.controls, text="Carregar imagem",command=self.loadimg).grid(row=1,column=0)
         
         self.c = Canvas(self.master,width=500,height=400,bg=self.color_bg, cursor='circle')
         self.c.pack(fill=BOTH,expand=True)
