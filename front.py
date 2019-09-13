@@ -35,8 +35,7 @@ class main:
         self.old_y = None      
 
     def changeW(self,e): #mudar raio do pincel
-        self.penwidth = e
-           
+        self.penwidth = e      
 
     def clear(self):
         self.c.delete(ALL)
@@ -44,17 +43,23 @@ class main:
     def change_fg(self):  #mudando a cor foreground
         self.color_fg=colorchooser.askcolor(color=self.color_fg)[1]
 
-    def change_bg(self):  #mudando a cor do back ground
+    def change_bg(self):  #mudando a cor do background
         self.color_bg=colorchooser.askcolor(color=self.color_bg)[1]
         self.c['bg'] = self.color_bg
+
+    def loadimg(self):
+        img = PhotoImage(file="perfil.jpg")
+        self.c.create_image(20,20, anchor=NW, image=img)
 
     def drawWidgets(self):
         self.controls = Frame(self.master,padx = 5,pady = 5)
         Label(self.controls, text='Raio pincel:',font=('arial 18')).grid(row=0,column=0)
-        self.slider = ttk.Scale(self.controls,from_= 200, to = 1,command=self.changeW,orient=VERTICAL)
+        self.slider = ttk.Scale(self.controls,from_= 200, to = 5,command=self.changeW,orient=VERTICAL)
         self.slider.set(self.penwidth)
         self.slider.grid(row=0,column=1,ipadx=30)
         self.controls.pack(side=LEFT)
+
+        Button(self.controls, text="OK",command=self.loadimg).grid(row=1,column=0)
         
         self.c = Canvas(self.master,width=500,height=400,bg=self.color_bg, cursor='circle')
         self.c.pack(fill=BOTH,expand=True)
