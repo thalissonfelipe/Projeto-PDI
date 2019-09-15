@@ -1,7 +1,9 @@
 import imageio
+import back as bk
 from tkinter import *
 from tkinter import ttk, colorchooser
 from PIL import ImageTk, Image
+import numpy as np
 
 
 class main:
@@ -12,6 +14,7 @@ class main:
         self.old_x = None
         self.old_y = None
         self.penwidth = 5
+        self.mcanvas = [0]
         self.input = ''
         self.drawWidgets()
         self.c.bind('<B1-Motion>',self.paint) #evento de movimento do mouse
@@ -28,6 +31,9 @@ class main:
     def paintdot(self,e):
         x1, y1 = ( e.x ), ( e.y )
         self.c.create_line(x1,y1,e.x,e.y,width=self.penwidth,fill=self.color_fg,capstyle=ROUND,smooth=True)
+        print(x1,y1)
+        self.mcanvas[x1][y1] = 1;
+        print(self.mcanvas[x1][y1])
         #self.old_x = e.x
         #self.old_y = e.y
         #x1, y1 = ( e.x - 1 ), ( e.y - 1 )
@@ -36,7 +42,8 @@ class main:
 
     def reset(self,e):   
         self.old_x = None
-        self.old_y = None      
+        self.old_y = None
+        self.mcanvas  = np.zeros((400,400), dtype=int)      
 
     def changeW(self,e): #mudar raio do pincel
         self.penwidth = e      
@@ -52,11 +59,12 @@ class main:
         self.c['bg'] = self.color_bg
 
     def loadimg(self):
-        url = 'images/'+self.input.get()
+        #url = 'images/'+self.input.get()
+        url = filedialog.askopenfilename()
         #img = Image.open('images/einstein.jpeg')
         img = Image.open(url)
         self.c.image = ImageTk.PhotoImage(img)
-        self.c.create_image(0,0, anchor=NW, image=self.c.image)
+        self.c.create_image(200, 200, anchor=CENTER, image=self.c.image)
         self.c.pack()
 
     def drawWidgets(self):
@@ -65,13 +73,14 @@ class main:
         self.slider = ttk.Scale(self.controls,from_= 200, to = 5,command=self.changeW,orient=VERTICAL)
         self.slider.set(self.penwidth)
         self.slider.grid(row=0,column=1)
-        self.input = Entry(self.controls, font=('arial 10'))
-        self.input.grid(row=1,column=0)
+        #self.input = Entry(self.controls, font=('arial 10'))
+        #self.input.focus()
+        #self.input.grid(row=1,column=0)
         self.controls.pack(side=LEFT)
 
         Button(self.controls, text="Carregar imagem",command=self.loadimg).grid(row=1,column=1)
-        
-        self.c = Canvas(self.master,width=500,height=400,bg=self.color_bg, cursor='circle')
+        self.c = Canvas(self.master,width=400,height=400,bg=self.color_bg, cursor='circle')
+        self.mcanvas = np.zeros((400,400), dtype=int)
         self.c.pack(fill=BOTH,expand=True)
 
         menu = Menu(self.master)
