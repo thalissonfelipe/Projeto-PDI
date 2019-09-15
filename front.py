@@ -12,6 +12,7 @@ class main:
         self.old_x = None
         self.old_y = None
         self.penwidth = 5
+        self.input = ''
         self.drawWidgets()
         self.c.bind('<B1-Motion>',self.paint) #evento de movimento do mouse
         self.c.bind('<Button-1>',self.paintdot) #evento quando clica com botão do mouse
@@ -51,7 +52,9 @@ class main:
         self.c['bg'] = self.color_bg
 
     def loadimg(self):
-        img = Image.open('images/einstein.jpeg')
+        url = 'images/'+self.input.get()
+        #img = Image.open('images/einstein.jpeg')
+        img = Image.open(url)
         self.c.image = ImageTk.PhotoImage(img)
         self.c.create_image(0,0, anchor=NW, image=self.c.image)
         self.c.pack()
@@ -61,10 +64,12 @@ class main:
         Label(self.controls, text='Raio pincel:',font=('arial 18')).grid(row=0,column=0)
         self.slider = ttk.Scale(self.controls,from_= 200, to = 5,command=self.changeW,orient=VERTICAL)
         self.slider.set(self.penwidth)
-        self.slider.grid(row=0,column=1,ipadx=30)
+        self.slider.grid(row=0,column=1)
+        self.input = Entry(self.controls, font=('arial 10'))
+        self.input.grid(row=1,column=0)
         self.controls.pack(side=LEFT)
 
-        Button(self.controls, text="Carregar imagem",command=self.loadimg).grid(row=1,column=0)
+        Button(self.controls, text="Carregar imagem",command=self.loadimg).grid(row=1,column=1)
         
         self.c = Canvas(self.master,width=500,height=400,bg=self.color_bg, cursor='circle')
         self.c.pack(fill=BOTH,expand=True)
