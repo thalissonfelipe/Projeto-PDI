@@ -2,7 +2,7 @@ import imageio
 import back as bk
 from tkinter import *
 from tkinter import ttk, colorchooser
-from PIL import ImageTk, Image
+from PIL import ImageTk, Image, ImageDraw
 import numpy as np
 
 
@@ -15,7 +15,8 @@ class main:
         self.old_y = None
         self.penwidth = 5
         self.mcanvas = [0]
-        self.input = ''
+        self.input = 0
+        self.draw = 0
         self.drawWidgets()
         self.c.bind('<B1-Motion>',self.paint) #evento de movimento do mouse
         self.c.bind('<Button-1>',self.paintdot) #evento quando clica com botão do mouse
@@ -31,8 +32,12 @@ class main:
     def paintdot(self,e):
         x1, y1 = ( e.x ), ( e.y )
         self.c.create_line(x1,y1,e.x,e.y,width=self.penwidth,fill=self.color_fg,capstyle=ROUND,smooth=True)
+        r = float(self.penwidth)
+        r = round(r)
+        r = int(r)
+        self.draw.ellipse((x1 - r, y1 - r, x1 + r, y1 + r), fill=self.color_fg)
         print(x1,y1)
-        self.mcanvas[x1][y1] = 1;
+        self.mcanvas[x1][y1] = 1
         print(self.mcanvas[x1][y1])
         #self.old_x = e.x
         #self.old_y = e.y
@@ -58,9 +63,27 @@ class main:
         self.color_bg=colorchooser.askcolor(color=self.color_bg)[1]
         self.c['bg'] = self.color_bg
 
+    def save(self):  #mudando a cor do background
+        filename = "canvas.jpg"
+        print(np.array(self.input))
+        self.input.save(filename)
+
+    def efeito_neg(self):
+        #url = 'images/'+self.input.get()
+        url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = Image.open(url)
+        i = np.array(img)
+        it = bk.negative_transform(i)
+        newimg = Image.fromarray(it) 
+        self.c.image = ImageTk.PhotoImage(newimg)
+        self.c.create_image(200, 200, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+
     def loadimg(self):
         #url = 'images/'+self.input.get()
         url = filedialog.askopenfilename()
+        self.input = url
         #img = Image.open('images/einstein.jpeg')
         img = Image.open(url)
         self.c.image = ImageTk.PhotoImage(img)
@@ -83,6 +106,10 @@ class main:
         self.mcanvas = np.zeros((400,400), dtype=int)
         self.c.pack(fill=BOTH,expand=True)
 
+        white = (255, 255, 255)
+        self.input = Image.new("RGB", (400,400), white)
+        self.draw = ImageDraw.Draw(self.input)
+
         menu = Menu(self.master)
         self.master.config(menu=menu)
         filemenu = Menu(menu)
@@ -92,6 +119,8 @@ class main:
         colormenu.add_command(label='Cor do BG',command=self.change_bg)
         optionmenu = Menu(menu)
         menu.add_cascade(label='Opções',menu=optionmenu)
+        optionmenu.add_command(label='Aplicar Negativo',command=self.efeito_neg)
+        optionmenu.add_command(label='Salvar Canvas',command=self.save)
         optionmenu.add_command(label='Limpar Canvas',command=self.clear)
         optionmenu.add_command(label='Sair',command=self.master.destroy) 
         
