@@ -4,9 +4,9 @@ Implementação de um Photoshop para a cadeira de Processamento Digital de Image
 
 ### Depedências
 
-`pip3 install opencv-python`
-`pip3 install imageio`
-`pip3 install matplotlib`
-`pip3 install pillow`
-`pip3 install numpy`
-`sudo apt-get install python3-tk`
+`pip3 install opencv-python`  
+`pip3 install imageio`  
+`pip3 install matplotlib`  
+`pip3 install pillow`  
+`pip3 install numpy`  
+`sudo apt-get install python3-tk`  
