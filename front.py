@@ -17,6 +17,7 @@ class main:
         self.mcanvas = [0]
         self.input = 0
         self.draw = 0
+        self.size = [400,400]
         self.drawWidgets()
         self.c.bind('<B1-Motion>',self.paint) #evento de movimento do mouse
         self.c.bind('<Button-1>',self.paintdot) #evento quando clica com botão do mouse
@@ -77,7 +78,7 @@ class main:
         it = bk.negative_transform(i)
         newimg = Image.fromarray(it) 
         self.c.image = ImageTk.PhotoImage(newimg)
-        self.c.create_image(200, 200, anchor=CENTER, image=self.c.image)
+        self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
         self.c.pack()
 
     def loadimg(self):
@@ -87,7 +88,10 @@ class main:
         #img = Image.open('images/einstein.jpeg')
         img = Image.open(url)
         self.c.image = ImageTk.PhotoImage(img)
-        self.c.create_image(200, 200, anchor=CENTER, image=self.c.image)
+        self.size[0] = img.width
+        self.size[1] = img.height
+        self.c.config(width=self.size[0], height=self.size[1])
+        self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
         self.c.pack()
 
     def drawWidgets(self):
@@ -102,24 +106,26 @@ class main:
         self.controls.pack(side=LEFT)
 
         Button(self.controls, text="Carregar imagem",command=self.loadimg).grid(row=1,column=1)
-        self.c = Canvas(self.master,width=400,height=400,bg=self.color_bg, cursor='circle')
-        self.mcanvas = np.zeros((400,400), dtype=int)
+        self.c = Canvas(self.master,width=self.size[0],height=self.size[1],bg=self.color_bg, cursor='circle')
+        self.mcanvas = np.zeros(self.size, dtype=int)
         self.c.pack(fill=BOTH,expand=True)
 
         white = (255, 255, 255)
-        self.input = Image.new("RGB", (400,400), white)
+        self.input = Image.new("RGB", (self.size), white)
         self.draw = ImageDraw.Draw(self.input)
 
         menu = Menu(self.master)
         self.master.config(menu=menu)
         filemenu = Menu(menu)
         colormenu = Menu(menu)
+        effectmenu = Menu(menu)
+        optionmenu = Menu(menu)
         menu.add_cascade(label='Cores',menu=colormenu)
         colormenu.add_command(label='Cor do Pincel',command=self.change_fg)
         colormenu.add_command(label='Cor do BG',command=self.change_bg)
-        optionmenu = Menu(menu)
+        menu.add_cascade(label='Efeitos',menu=effectmenu)
+        effectmenu.add_command(label='Aplicar Negativo',command=self.efeito_neg)
         menu.add_cascade(label='Opções',menu=optionmenu)
-        optionmenu.add_command(label='Aplicar Negativo',command=self.efeito_neg)
         optionmenu.add_command(label='Salvar Canvas',command=self.save)
         optionmenu.add_command(label='Limpar Canvas',command=self.clear)
         optionmenu.add_command(label='Sair',command=self.master.destroy) 
