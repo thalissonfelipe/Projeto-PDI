@@ -81,6 +81,19 @@ class main:
         self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
         self.c.pack()
 
+    def efeito_meanfilter(self):
+        #url = 'images/'+self.input.get()
+        url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = Image.open(url)
+        i = np.array(img)
+        i = bk.rgb2gray(i)
+        it = bk.mean_filter(i,3)
+        newimg = Image.fromarray(it) 
+        self.c.image = ImageTk.PhotoImage(newimg)
+        self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+
     def loadimg(self):
         #url = 'images/'+self.input.get()
         url = filedialog.askopenfilename()
@@ -125,6 +138,7 @@ class main:
         colormenu.add_command(label='Cor do BG',command=self.change_bg)
         menu.add_cascade(label='Efeitos',menu=effectmenu)
         effectmenu.add_command(label='Aplicar Negativo',command=self.efeito_neg)
+        effectmenu.add_command(label='Filtro Média',command=self.efeito_meanfilter)
         menu.add_cascade(label='Opções',menu=optionmenu)
         optionmenu.add_command(label='Salvar Canvas',command=self.save)
         optionmenu.add_command(label='Limpar Canvas',command=self.clear)
