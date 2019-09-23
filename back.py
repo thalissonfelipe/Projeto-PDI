@@ -120,32 +120,93 @@ def applyHistEqualization(i, hist_equalizado):
 #def dft(img):
 
 		
-def conv(image, kernel, k):
-	kernel = np.flipud(np.fliplr(kernel))
+def conv(image, kernel):
+	"""kernel = np.flipud(np.fliplr(kernel))
 	output = np.zeros_like(image)
-	image_padded = np.zeros((image.shape[0] + 2, image.shape[1] + 2))
+	pad = (size) // 2
+	image_padded = np.zeros((image.shape[0] + pad, image.shape[1] + pad))
 	image_padded[1:-1, 1:-1] = image
-	for v in range(image.shape[1]):
-		for w in range(image.shape[0]):
-			output[w,v] = (kernel*image_padded[w:w+k, v:v+k]).sum()
+	for v in np.arange(pad, image.shape[1]+pad):
+		for w in np.arange(pad, image.shape[0]+pad):
+			roi = image_padded[v-pad:v+1, w-pad:w+1]
+			k = (roi * kernel).sum()
+			output[v-pad, w-pad] = k
 	return output
 
+	#for v in range(image.shape[1]):
+	#	for w in range(image.shape[0]):
+	#		output[w,v] = (kernel*image_padded[w:w+k, v:v+k]).sum()
+	#return output"""
+
+	(height, width) = image.shape
+	(heightK, widthK) = kernel.shape
+	output = np.zeros_like(image)
+	kernel = np.flipud(np.fliplr(kernel))
+	pad = (widthK - 1) // 2
+	image = cv2.copyMakeBorder(image, pad, pad, pad, pad, 0)
+
+	for v in np.arange(pad, height + pad):
+		for w in np.arange(pad, width + pad):
+			roi = image[v-pad:v+pad+1, w-pad:w+pad+1]
+			#if (roi.shape[0] != kernel.shape[0] or 
+			#	roi.shape[1] != kernel.shape[1]):
+			#	pass
+			#else:
+			k = (roi * kernel).sum()
+			output[v-pad, w-pad] = k
+
+	output = (output * 255.0) / output.max()
+	return output.astype('uint8')
+
+def kernel_transform(kernel):
+	k = np.zeros_like(kernel)
+	for i in range(kernel.shape[0]):
+		for j in range(kernel.shape[1]):
+			k[i][j] = kernel[kernel.shape[0]-i-1][kernel.shape[1]-j-1]
+	return k
+
+def conv2(image, kernel):
+	(height, width) = image.shape
+	(heightK, widthK) = kernel.shape
+	output = np.zeros_like(image)
+
+	pad_h = heightK // 2
+	pad_w = widthK // 2
+
+	for v in range(pad_h, height-pad_h):
+		for w in range(pad_w, width-pad_w):
+			s = 0
+			for i in range(heightK):
+				for j in range(widthK):
+					s += kernel[i][j] * image[v-pad_h+i][w-pad_h+j]
+
+			output[v][w] = s
+
+	output = (output * 255.0) / output.max()
+	return output.astype('uint8')
+
 def mean_filter(image, size):
-	f = np.ones((size, size))
-	f /= size
+	f = np.ones((size, size))*(1.0/(size*size))
+	return conv(image, f) 
 
-	image_mean = conv(image, f, size)
-
-	return image_mean 
-
+def laplacian_filter(image):
+	f = np.array((
+		[0, 1, 0],
+		[1, -4, 1],
+		[0, 1, 0]))
+	return conv(image, f)
+ 
 if __name__ == '__main__':
 	i = imageio.imread('images/a.jpeg')
 	i = rgb2gray(i)
+	#i = np.ones((10,10))
 	#hist = histogram(i, 256)
 	#it = equalize_hist(i, hist)
 	#histeq = histogram(it, 256)
 	#subplot_hist(hist, histeq)
 	#subplot_img(i, it)
 	#subplot(histogram(i, 256), histogram(it, 256))
-	it = mean_filter(i, 3)
+	it = mean_filter(i, 35)
+	#print(i.shape)
+	#it = laplacian_filter(i)
 	subplot_img(i, it)
