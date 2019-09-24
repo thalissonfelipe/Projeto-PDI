@@ -247,9 +247,43 @@ def median_filter(image, filter_size):
 
 	return output.astype('uint8')
 
+
+def sepia_filter(image):
+	img = np.asarray(image)
+
+	lmap = np.matrix([[ 0.393, 0.769, 0.189 ],
+					  [ 0.349, 0.686, 0.168 ],
+					  [ 0.272, 0.534, 0.131 ]])
+	
+	output = np.array([x * lmap.T for x in img])
+	output[np.where(output > 255)] = 255
+	output = np.reshape(output, image.shape)
+
+	return output.astype('uint8')
+
+""" Demora uns 20 segundos
+def sepia_filter2(image):
+	height, width, _ = image.shape
+	output = np.zeros_like(image)
+
+	for v in range(height):
+		for w in range(width):
+			r, g, b = image[v,w]
+			tr = int(0.393 * r + 0.769 * g + 0.189 * b)
+			tg = int(0.349 * r + 0.686 * g + 0.168 * b)
+			tb = int(0.272 * r + 0.534 * g + 0.131 * b)
+
+			if tr > 255: tr = 255
+			if tg > 255: tg = 255
+			if tb > 255: tb = 255
+
+			output[v,w] = tr, tg, tb
+
+	return output.astype('uint8')"""
+
 if __name__ == '__main__':
-	i = imageio.imread('images/lente.jpeg')
-	i = rgb2gray(i)
+	i = imageio.imread('images/hamster.jpeg')
+	#i = rgb2gray(i)
 	#i = np.ones((10,10))
 	#hist = histogram(i, 256)
 	#it = equalize_hist(i, hist)
@@ -258,10 +292,10 @@ if __name__ == '__main__':
 	#subplot_img(i, it)
 	#subplot(histogram(i, 256), histogram(it, 256))
 	#it = mean_filter(i, 35)
-	#print(i.shape)
+	it = sepia_filter(i)
 	#it = laplacian_filter(i)
 	#hist = histogram(it)
 	#it = equalize_hist(it, hist)
 	#it = median_filter(i, 3)
-	it = sobel_filter(i)
+	#it = sobel_filter(i)
 	subplot_img(i, it)
