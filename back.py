@@ -5,12 +5,15 @@ import matplotlib.pyplot as plt
 plt.rcParams['figure.figsize'] = (15, 15)
 
 def rgb2gray(img):
-	gray = np.dot(img[...,:3], [0.298936, 0.587043, 0.114021])
-	igray = np.zeros(gray.shape, dtype=int)
-	for v in range(igray.shape[0]):
-		for w in range(igray.shape[1]):
-			igray[v][w] = int(round(gray[v][w],5))
-	return igray
+	if len(img.shape) == 2:
+		return img
+	else:
+		gray = np.dot(img[...,:3], [0.298936, 0.587043, 0.114021])
+		igray = np.zeros(gray.shape, dtype=int)
+		for v in range(igray.shape[0]):
+			for w in range(igray.shape[1]):
+				igray[v][w] = int(round(gray[v][w],5))
+		return igray
 
 def imshow(img):
 	plt.imshow(img, cmap=plt.get_cmap(name='gray'))
@@ -51,7 +54,7 @@ def gamma_transform(img, c, gama):
 #TODO: implementar transformaçao linear
 #def linear_transform(i):
 
-def histogram(img, bins):
+def histogram(img, bins=256):
 	hist = np.zeros(bins)
 	flat = np.asarray(img)
 	flat = flat.flatten()
@@ -189,15 +192,63 @@ def mean_filter(image, size):
 	f = np.ones((size, size))*(1.0/(size*size))
 	return conv(image, f) 
 
+## AJEITAR
 def laplacian_filter(image):
 	f = np.array((
 		[0, 1, 0],
 		[1, -4, 1],
 		[0, 1, 0]))
+	f = np.array((
+		[-1, -1, -1],
+		[-1, 8, -1],
+		[-1, -1, -1]))
 	return conv(image, f)
- 
+
+def sobel_filter(image):
+	fh = np.array((
+		[1, 2, 1],
+		[0, 0, 0],
+		[-1, -2, -1]))
+
+	fv = np.array((
+		[-1, 0, 1],
+		[-2, 0, 2],
+		[-1, 0, 1]))
+
+	horizontal = conv(image, fh)
+	vertical = conv(image, fv)
+
+	#G = sqrt(horizonal² + vertical²)
+	output = np.sqrt(np.square(horizontal) + np.square(vertical))
+	output = (output * 255.0) / output.max()
+	return output.astype('uint8')
+
+def median_filter(image, filter_size):
+	(height, width) = image.shape
+	mid = filter_size // 2
+	output = np.zeros_like(image)
+
+	for v in range(height):
+		for w in range(width):
+			neighbors = []
+			for x in range(filter_size):
+				if v + x - mid < 0 or v + x - mid > height - 1:
+					for i in range(filter_size):
+						neighbors.append(0)
+				else:
+					if w + x - mid < 0 or w + mid > width - 1:
+						neighbors.append(0)
+					else:
+						for i in range(filter_size):
+							neighbors.append(image[v+x-mid,w+i-mid])
+
+			neighbors.sort()
+			output[v,w] = neighbors[len(neighbors) // 2]
+
+	return output.astype('uint8')
+
 if __name__ == '__main__':
-	i = imageio.imread('images/a.jpeg')
+	i = imageio.imread('images/lente.jpeg')
 	i = rgb2gray(i)
 	#i = np.ones((10,10))
 	#hist = histogram(i, 256)
@@ -206,7 +257,11 @@ if __name__ == '__main__':
 	#subplot_hist(hist, histeq)
 	#subplot_img(i, it)
 	#subplot(histogram(i, 256), histogram(it, 256))
-	it = mean_filter(i, 35)
+	#it = mean_filter(i, 35)
 	#print(i.shape)
 	#it = laplacian_filter(i)
+	#hist = histogram(it)
+	#it = equalize_hist(it, hist)
+	#it = median_filter(i, 3)
+	it = sobel_filter(i)
 	subplot_img(i, it)
