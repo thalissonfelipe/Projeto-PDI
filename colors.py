@@ -1,9 +1,20 @@
 import math
 import numpy as np
 
+def rgb2gray(image):
+	if len(image.shape) == 2:
+		return image
+	else:
+		gray = np.dot(image[...,:3], [0.298936, 0.587043, 0.114021])
+		igray = np.zeros_like(gray, dtype=int)
+		for v in range(igray.shape[0]):
+			for w in range(igray.shape[1]):
+				igray[v][w] = int(round(gray[v][w],5))
+		return igray
+
 ## Convert RGB image to grayscale using weighted average
-def rgb2gray(r, g, b):
-	return (r * 0.298936) + (g * 0.587043) + (b * 0.114021)
+#def rgb2gray(r, g, b):
+#	return (r * 0.298936) + (g * 0.587043) + (b * 0.114021)
 
 ## Convert RGB image to grayscale using arithmetic average
 def rgb2gray_avg(r, g, b):

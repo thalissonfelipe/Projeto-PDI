@@ -128,7 +128,7 @@ class main:
         #img = Image.open('images/einstein.jpeg')
         img = self.img
         i = np.array(img)
-        it = bk.negative_transform(i)
+        it = bk.negative_filter(i)
         self.img = Image.fromarray(it) 
         self.c.image = ImageTk.PhotoImage(self.img)
         self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
@@ -153,7 +153,7 @@ class main:
         #img = Image.open('images/einstein.jpeg')
         img = self.img
         i = np.array(img)
-        #i = bk.rgb2gray(i)
+        #i = colors.rgb2gray(i)
         it = bk.mean_filter(i,3)
         self.img = Image.fromarray(it) 
         self.c.image = ImageTk.PhotoImage(self.img)
@@ -166,7 +166,7 @@ class main:
         #img = Image.open('images/einstein.jpeg')
         img = self.img
         i = np.array(img)
-        #i = bk.rgb2gray(i)
+        #i = colors.rgb2gray(i)
         it = bk.laplacian_filter(i)
         self.img = Image.fromarray(it) 
         self.c.image = ImageTk.PhotoImage(self.img)
@@ -180,7 +180,7 @@ class main:
         #img = Image.open('images/einstein.jpeg')
         self.img = Image.open(url)
         i = np.array(self.img)
-        i = bk.rgb2gray(i)
+        i = colors.rgb2gray(i)
         self.img = Image.fromarray(i)
         self.c.image = ImageTk.PhotoImage(self.img)
         self.size[0] = self.img.width
