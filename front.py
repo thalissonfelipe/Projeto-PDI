@@ -1,5 +1,6 @@
 import imageio
 import back as bk
+import colors as colors
 from tkinter import *
 from tkinter import ttk, colorchooser
 from PIL import ImageTk, Image, ImageDraw
@@ -229,14 +230,9 @@ class main:
         #img = Image.open('images/einstein.jpeg')
         img = self.img
         i = np.array(img)
-<<<<<<< HEAD
-        it = bk.negative_transform(i)
-        self.img = Image.fromarray(it)
-        self.old_img = img 
-=======
         it = bk.negative_filter(i)
-        self.img = Image.fromarray(it) 
->>>>>>> 07e61540954375075827aa1ed09d77c2a498ccd3
+        self.img = Image.fromarray(it)
+        self.old_img = img
         self.c.image = ImageTk.PhotoImage(self.img)
         self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
         self.c.pack()
