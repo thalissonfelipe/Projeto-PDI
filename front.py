@@ -255,15 +255,33 @@ class main:
         #url = 'images/'+self.input.get()
         #url = self.input
         #img = Image.open('images/einstein.jpeg')
+        self.title = Label(self.middledata, text="Filtro da Média", font="roboto 12")
+        self.title.pack()
+        self.text = Label(self.middledata, text="Tamanho do filtro: ")
+        self.spin = Spinbox(self.middledata, values=(3,5,7,9), width=5)   
+        self.submit = Button(self.middledata, text="Aplicar",command=self.meanfilter)
+        self.submit.pack(side=RIGHT, padx=5, pady=5)
+        self.spin.pack(side=RIGHT, pady=5)
+        self.text.pack(side=RIGHT, padx=5, pady=5)
+
+    def meanfilter(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        f = int(self.spin.get())
         img = self.img
         i = np.array(img)
         #i = colors.rgb2gray(i)
-        it = bk.mean_filter(i,3)
+        it = bk.mean_filter(i,f)
         self.img = Image.fromarray(it) 
         self.old_img = img
         self.c.image = ImageTk.PhotoImage(self.img)
         self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
         self.c.pack()
+        self.title.pack_forget()
+        self.spin.pack_forget()
+        self.submit.pack_forget()
+        self.text.pack_forget()
 
     def efeito_laplacefilter(self):
         #url = 'images/'+self.input.get()
@@ -297,6 +315,7 @@ class main:
         self.c.pack()
 
     def drawWidgets(self):
+        self.master.resizable(width=False, height=False)
         self.controls = Frame(self.master,padx = 5,pady = 5)
         Label(self.controls, text='Raio pincel:',font=('arial 18')).grid(row=0,column=0)
         self.slider = ttk.Scale(self.controls,from_= 200, to = 5,command=self.changeW,orient=VERTICAL)
@@ -305,13 +324,25 @@ class main:
         #self.input = Entry(self.controls, font=('arial 10'))
         #self.input.focus()
         #self.input.grid(row=1,column=0)
-        self.controls.pack(side=LEFT)
+        self.controls.pack(side=LEFT, expand=False)
+
+
+        self.data = Frame(self.master,padx = 5,pady = 5)
+        self.topdata = Frame(self.master,padx = 8)
+        self.middledata = Frame(self.data).grid(row=1)
+        self.bottomdata = Frame(self.data).grid(row=2)
+
+        self.topdata.pack(side=RIGHT)
+        self.colordisplay = Canvas(self.topdata,width=50,height=50,bg=self.color_fg)
+        self.colordisplay.pack()
 
         Button(self.controls, text="Função",command=self.drawfunc).grid(row=1,column=0)
         Button(self.controls, text="Carregar imagem",command=self.loadimg).grid(row=1,column=1)
         self.c = Canvas(self.master,width=self.size[0],height=self.size[1],bg=self.color_bg, cursor='circle')
         self.mcanvas = np.zeros(self.size, dtype=int)
-        self.c.pack(fill=BOTH, expand=False)
+        self.c.pack(side=BOTTOM,fill=BOTH,expand=False)
+        self.data.pack(side=TOP)
+
 
         white = (255, 255, 255)
         self.input = Image.new("RGB", (self.size), white)
@@ -329,6 +360,7 @@ class main:
         menu.add_cascade(label='Efeitos',menu=effectmenu)
         effectmenu.add_command(label='Aplicar Negativo',command=self.efeito_neg)
         effectmenu.add_command(label='Aplicar Eq. Histograma',command=self.efeito_hist)
+        effectmenu.add_separator()
         effectmenu.add_command(label='Filtro Média',command=self.efeito_meanfilter)
         effectmenu.add_command(label='Filtro Laplaciano',command=self.efeito_laplacefilter)
         menu.add_cascade(label='Opções',menu=optionmenu)
@@ -342,5 +374,6 @@ if __name__ == '__main__':
      
     root = Tk()
     main(root)
+    root.geometry("600x300+100+100")
     root.title('Fotocompra')
     root.mainloop()
