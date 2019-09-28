@@ -26,6 +26,9 @@ class main:
         self.pfuncao = [0,0,0,0]
         self.coorda = [0,0]
         self.coordb = [0,0]
+        self.old_red = 0
+        self.old_green = 0
+        self.old_blue = 0
         self.drawWidgets()
         self.c.bind('<B1-Motion>',self.paint) #evento de movimento do mouse
         self.c.bind('<Button-1>',self.paintdot) #evento quando clica com botão do mouse
@@ -219,6 +222,26 @@ class main:
         self.color_bg=colorchooser.askcolor(color=self.color_bg)[1]
         self.c['bg'] = self.color_bg
 
+    def changeR(self,e):  #mudando a cor foreground
+        e = int(round(float(e)))
+        cor = '#%02x%02x%02x' % (e, self.old_green, self.old_blue)
+        self.colordisplay.itemconfig(self.cordisp, fill=cor)
+        self.old_red = e
+        #self.colordisplay['bg'] = r,g,b
+    
+    def changeG(self,e):  #mudando a cor foreground
+        e = int(round(float(e)))
+        cor = '#%02x%02x%02x' % (self.old_red, e, self.old_blue)
+        self.colordisplay.itemconfig(self.cordisp, fill=cor)
+        self.old_green = e
+
+    def changeB(self,e):  #mudando a cor foreground
+        e = int(round(float(e)))
+        cor = '#%02x%02x%02x' % (self.old_red, self.old_green, e)
+        self.colordisplay.itemconfig(self.cordisp, fill=cor)
+        self.old_blue = e
+    
+
     def save(self):  #mudando a cor do background
         filename = "canvas.jpg"
         print(np.array(self.input))
@@ -334,7 +357,17 @@ class main:
 
         self.topdata.pack(side=RIGHT)
         self.colordisplay = Canvas(self.topdata,width=50,height=50,bg=self.color_fg)
-        self.colordisplay.pack()
+        self.cordisp = self.colordisplay.create_rectangle((0, 0, 50, 50), fill="black")
+        self.colordisplay.grid(row=0, column=0)
+        self.sliderR = ttk.Scale(self.topdata,from_= 0, to = 255,command=self.changeR,orient=HORIZONTAL)
+        Label(self.topdata, text='R:',font=('roboto 12'), fg="red").grid(row=1,column=0)
+        self.sliderR.grid(row=1, column=1)
+        self.sliderG = ttk.Scale(self.topdata,from_= 0, to = 255,command=self.changeG,orient=HORIZONTAL)
+        Label(self.topdata, text='G:',font=('roboto 12'), fg="green").grid(row=2,column=0)
+        self.sliderG.grid(row=2, column=1)
+        self.sliderB = ttk.Scale(self.topdata,from_= 0, to = 255,command=self.changeB,orient=HORIZONTAL)
+        Label(self.topdata, text='B:',font=('roboto 12'), fg="blue").grid(row=3,column=0)
+        self.sliderB.grid(row=3, column=1)
 
         Button(self.controls, text="Função",command=self.drawfunc).grid(row=1,column=0)
         Button(self.controls, text="Carregar imagem",command=self.loadimg).grid(row=1,column=1)
