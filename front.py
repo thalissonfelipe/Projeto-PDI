@@ -20,6 +20,7 @@ class main:
         self.draw = 0
         self.size = [400,400]
         self.img = [0]
+        self.orimg = [0]
         self.old_img = [0]
         self.func = None
         self.points = [0,0,0,0,0,0,0,0]
@@ -326,6 +327,7 @@ class main:
         self.input = url
         #img = Image.open('images/einstein.jpeg')
         self.img = Image.open(url)
+        self.orimg = self.img
         i = np.array(self.img)
         i = colors.rgb2gray(i)
         self.img = Image.fromarray(i)
@@ -338,7 +340,7 @@ class main:
         self.c.pack()
 
     def drawWidgets(self):
-        self.master.resizable(width=False, height=False)
+        #self.master.resizable(width=False, height=False)
         self.controls = Frame(self.master,padx = 5,pady = 5)
         Label(self.controls, text='Raio pincel:',font=('arial 18')).grid(row=0,column=0)
         self.slider = ttk.Scale(self.controls,from_= 200, to = 5,command=self.changeW,orient=VERTICAL)
@@ -351,21 +353,22 @@ class main:
 
 
         self.data = Frame(self.master,padx = 5,pady = 5)
-        self.topdata = Frame(self.master,padx = 8)
+        self.topdata = Frame(self.master)
         self.middledata = Frame(self.data).grid(row=1)
         self.bottomdata = Frame(self.data).grid(row=2)
 
         self.topdata.pack(side=RIGHT)
         self.colordisplay = Canvas(self.topdata,width=50,height=50,bg=self.color_fg)
+        Label(self.topdata, text='Cor: ',font=('roboto 12')).grid(row=0,column=0)
         self.cordisp = self.colordisplay.create_rectangle((0, 0, 50, 50), fill="black")
-        self.colordisplay.grid(row=0, column=0)
-        self.sliderR = ttk.Scale(self.topdata,from_= 0, to = 255,command=self.changeR,orient=HORIZONTAL)
+        self.colordisplay.grid(row=0, column=1)
+        self.sliderR = Scale(self.topdata,from_= 0, to = 255,width=7,command=self.changeR,orient=HORIZONTAL, fg="red",troughcolor="dark red")
         Label(self.topdata, text='R:',font=('roboto 12'), fg="red").grid(row=1,column=0)
         self.sliderR.grid(row=1, column=1)
-        self.sliderG = ttk.Scale(self.topdata,from_= 0, to = 255,command=self.changeG,orient=HORIZONTAL)
+        self.sliderG = Scale(self.topdata,from_= 0, to = 255,width=7,command=self.changeG,orient=HORIZONTAL, fg="green",troughcolor="dark green")
         Label(self.topdata, text='G:',font=('roboto 12'), fg="green").grid(row=2,column=0)
         self.sliderG.grid(row=2, column=1)
-        self.sliderB = ttk.Scale(self.topdata,from_= 0, to = 255,command=self.changeB,orient=HORIZONTAL)
+        self.sliderB = Scale(self.topdata,from_= 0, to = 255,width=7,command=self.changeB,orient=HORIZONTAL, fg="blue",troughcolor="dark blue")
         Label(self.topdata, text='B:',font=('roboto 12'), fg="blue").grid(row=3,column=0)
         self.sliderB.grid(row=3, column=1)
 
