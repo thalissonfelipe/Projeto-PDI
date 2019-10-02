@@ -1,6 +1,6 @@
 import imageio
 import back as bk
-import colors as colors
+import colors as cl
 from tkinter import *
 from tkinter import ttk, colorchooser
 from PIL import ImageTk, Image, ImageDraw
@@ -30,6 +30,9 @@ class main:
         self.old_red = 0
         self.old_green = 0
         self.old_blue = 0
+        self.old_hue = 0
+        self.old_sat = 0
+        self.old_val = 0
         self.drawWidgets()
         self.c.bind('<B1-Motion>',self.paint) #evento de movimento do mouse
         self.c.bind('<Button-1>',self.paintdot) #evento quando clica com botão do mouse
@@ -241,6 +244,37 @@ class main:
         cor = '#%02x%02x%02x' % (self.old_red, self.old_green, e)
         self.colordisplay.itemconfig(self.cordisp, fill=cor)
         self.old_blue = e
+
+    def changeH(self,e):  #mudando a cor foreground
+        e = int(round(float(e)))
+        print("h: ",  e, " s: ", self.old_sat, " v: ",  self.old_val)
+        rgb = cl.hsv2rgb(e, self.old_sat, self.old_val)
+        print("r: ",  rgb[0], " g: ", rgb[1], " b: ",  rgb[2])
+        cor = '#%02x%02x%02x' % (rgb[0], rgb[1], rgb[2])
+        print(cor)
+        self.colorHSV.itemconfig(self.cordisp, fill=cor)
+        self.old_hue = e
+        #self.colordisplay['bg'] = r,g,b
+    
+    def changeS(self,e):  #mudando a cor foreground
+        e = int(round(float(e)))
+        print("h: ",  self.old_hue, " s: ", e, " v: ",  self.old_val)
+        rgb = cl.hsv2rgb(self.old_hue, e, self.old_val)
+        print("h: ", rgb[0], " s: ", rgb[1], " v: ",  rgb[2])
+        cor = '#%02x%02x%02x' % (rgb[0], rgb[1], rgb[2])
+        print(cor)
+        self.colorHSV.itemconfig(self.cordisp, fill=cor)
+        self.old_sat = e
+
+    def changeV(self,e):  #mudando a cor foreground
+        e = int(round(float(e)))
+        print("h: ",  self.old_hue, " s: ", self.old_sat, " v: ",  e)
+        rgb = cl.hsv2rgb(self.old_hue, self.old_sat, e)
+        print("r: ",  rgb[0], " g: ", rgb[1], " b: ",  rgb[2])
+        cor = '#%02x%02x%02x' % (rgb[0], rgb[1], rgb[2])
+        print(cor)
+        self.colorHSV.itemconfig(self.cordisp, fill=cor)
+        self.old_val = e
     
 
     def save(self):  #mudando a cor do background
@@ -281,12 +315,13 @@ class main:
         #img = Image.open('images/einstein.jpeg')
         self.title = Label(self.middledata, text="Filtro da Média", font="roboto 12")
         self.title.pack()
-        self.text = Label(self.middledata, text="Tamanho do filtro: ")
-        self.spin = Spinbox(self.middledata, values=(3,5,7,9), width=5)   
-        self.submit = Button(self.middledata, text="Aplicar",command=self.meanfilter)
-        self.submit.pack(side=RIGHT, padx=5, pady=5)
-        self.spin.pack(side=RIGHT, pady=5)
-        self.text.pack(side=RIGHT, padx=5, pady=5)
+        self.text = Label(self.bottomdata, text="Tamanho do filtro: ")
+        self.spin = Spinbox(self.bottomdata, values=(3,5,7,9), width=5)   
+        self.submit = Button(self.bottomdata, text="Aplicar",command=self.meanfilter)
+        self.text.pack(side=TOP, padx=5, pady=5)
+        self.spin.pack(side=TOP, pady=5)
+        self.submit.pack(side=TOP, padx=5, pady=5)
+        
 
     def meanfilter(self):
         #url = 'images/'+self.input.get()
@@ -335,6 +370,10 @@ class main:
         self.c.image = ImageTk.PhotoImage(self.img)
         self.size[0] = self.img.width
         self.size[1] = self.img.height
+        print(self.size[0],'x',self.size[1])
+        resize = '%02dx%02d+100+100' % (600 + self.size[0], 300 + self.size[1]/3)
+        print(resize)
+        root.geometry(resize)
         self.c.config(width=self.size[0], height=self.size[1])
         self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
         self.c.pack()
@@ -352,32 +391,57 @@ class main:
         self.controls.pack(side=LEFT, expand=False)
 
 
-        self.data = Frame(self.master,padx = 5,pady = 5)
+        self.data = Frame(self.controls)
         self.topdata = Frame(self.master)
-        self.middledata = Frame(self.data).grid(row=1)
-        self.bottomdata = Frame(self.data).grid(row=2)
+        self.middledata = Frame(self.data).grid(row=0)
+        self.bottomdata = Frame(self.data).grid(row=1)
 
-        self.topdata.pack(side=RIGHT)
-        self.colordisplay = Canvas(self.topdata,width=50,height=50,bg=self.color_fg)
-        Label(self.topdata, text='Cor: ',font=('roboto 12')).grid(row=0,column=0)
+        
+        tab_control = ttk.Notebook(self.topdata)#1 
+        self.abaRGB = ttk.Frame(tab_control)#2
+        self.abaHSV = ttk.Frame(tab_control)#2
+        tab_control.add(self.abaRGB, text='RGB')#3
+        tab_control.add(self.abaHSV, text='HSV')
+        tab_control.pack(expand=1, fill='both')
+
+        #SLIDERS RGB
+        self.colordisplay = Canvas(self.abaRGB,width=50,height=50,bg=self.color_fg)
+        Label(self.abaRGB, text='Cor: ',font=('roboto 12')).grid(row=0,column=0)
         self.cordisp = self.colordisplay.create_rectangle((0, 0, 50, 50), fill="black")
         self.colordisplay.grid(row=0, column=1)
-        self.sliderR = Scale(self.topdata,from_= 0, to = 255,width=7,command=self.changeR,orient=HORIZONTAL, fg="red",troughcolor="dark red")
-        Label(self.topdata, text='R:',font=('roboto 12'), fg="red").grid(row=1,column=0)
+        self.sliderR = Scale(self.abaRGB,from_= 0, to = 255,width=7,command=self.changeR,orient=HORIZONTAL, fg="red",troughcolor="dark red")
+        Label(self.abaRGB, text='R:',font=('roboto 12'), fg="red").grid(row=1,column=0)
         self.sliderR.grid(row=1, column=1)
-        self.sliderG = Scale(self.topdata,from_= 0, to = 255,width=7,command=self.changeG,orient=HORIZONTAL, fg="green",troughcolor="dark green")
-        Label(self.topdata, text='G:',font=('roboto 12'), fg="green").grid(row=2,column=0)
+        self.sliderG = Scale(self.abaRGB,from_= 0, to = 255,width=7,command=self.changeG,orient=HORIZONTAL, fg="green",troughcolor="dark green")
+        Label(self.abaRGB, text='G:',font=('roboto 12'), fg="green").grid(row=2,column=0)
         self.sliderG.grid(row=2, column=1)
-        self.sliderB = Scale(self.topdata,from_= 0, to = 255,width=7,command=self.changeB,orient=HORIZONTAL, fg="blue",troughcolor="dark blue")
-        Label(self.topdata, text='B:',font=('roboto 12'), fg="blue").grid(row=3,column=0)
+        self.sliderB = Scale(self.abaRGB,from_= 0, to = 255,width=7,command=self.changeB,orient=HORIZONTAL, fg="blue",troughcolor="dark blue")
+        Label(self.abaRGB, text='B:',font=('roboto 12'), fg="blue").grid(row=3,column=0)
         self.sliderB.grid(row=3, column=1)
+
+        #SLIDERS HSV
+        self.colorHSV = Canvas(self.abaHSV,width=50,height=50,bg=self.color_fg)
+        Label(self.abaHSV, text='Cor: ',font=('roboto 12')).grid(row=0,column=0)
+        self.cordisp = self.colorHSV.create_rectangle((0, 0, 50, 50), fill="black")
+        self.colorHSV.grid(row=0, column=1)
+        self.sliderH = Scale(self.abaHSV,from_= 0, to = 360,width=7,command=self.changeH,orient=HORIZONTAL, fg="red",troughcolor="dark red")
+        Label(self.abaHSV, text='H:',font=('roboto 12'), fg="red").grid(row=1,column=0)
+        self.sliderH.grid(row=1, column=1)
+        self.sliderS = Scale(self.abaHSV,from_= 0, to = 100,width=7,command=self.changeS,orient=HORIZONTAL, fg="green",troughcolor="dark green")
+        Label(self.abaHSV, text='S:',font=('roboto 12'), fg="green").grid(row=2,column=0)
+        self.sliderS.grid(row=2, column=1)
+        self.sliderV = Scale(self.abaHSV,from_= 0, to = 100,width=7,command=self.changeV,orient=HORIZONTAL, fg="blue",troughcolor="dark blue")
+        Label(self.abaHSV, text='V:',font=('roboto 12'), fg="blue").grid(row=3,column=0)
+        self.sliderV.grid(row=3, column=1)
 
         Button(self.controls, text="Função",command=self.drawfunc).grid(row=1,column=0)
         Button(self.controls, text="Carregar imagem",command=self.loadimg).grid(row=1,column=1)
         self.c = Canvas(self.master,width=self.size[0],height=self.size[1],bg=self.color_bg, cursor='circle')
         self.mcanvas = np.zeros(self.size, dtype=int)
-        self.c.pack(side=BOTTOM,fill=BOTH,expand=False)
-        self.data.pack(side=TOP)
+
+        self.topdata.pack(side=RIGHT,expand=False)
+        self.c.pack(side=BOTTOM,expand=False)
+        self.data.grid(row=2, column=0)
 
 
         white = (255, 255, 255)
