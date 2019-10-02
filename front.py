@@ -248,7 +248,7 @@ class main:
     def changeH(self,e):  #mudando a cor foreground
         e = int(round(float(e)))
         print("h: ",  e, " s: ", self.old_sat, " v: ",  self.old_val)
-        rgb = cl.hsv2rgb(e, self.old_sat, self.old_val)
+        rgb = cl.hsv2rgb(e/100, self.old_sat/100, self.old_val/100)
         print("r: ",  rgb[0], " g: ", rgb[1], " b: ",  rgb[2])
         cor = '#%02x%02x%02x' % (rgb[0], rgb[1], rgb[2])
         print(cor)
@@ -259,8 +259,8 @@ class main:
     def changeS(self,e):  #mudando a cor foreground
         e = int(round(float(e)))
         print("h: ",  self.old_hue, " s: ", e, " v: ",  self.old_val)
-        rgb = cl.hsv2rgb(self.old_hue, e, self.old_val)
-        print("h: ", rgb[0], " s: ", rgb[1], " v: ",  rgb[2])
+        rgb = cl.hsv2rgb(self.old_hue/100, e/100, self.old_val/100)
+        print("r: ", rgb[0], " g: ", rgb[1], " b: ",  rgb[2])
         cor = '#%02x%02x%02x' % (rgb[0], rgb[1], rgb[2])
         print(cor)
         self.colorHSV.itemconfig(self.cordisp, fill=cor)
@@ -269,7 +269,7 @@ class main:
     def changeV(self,e):  #mudando a cor foreground
         e = int(round(float(e)))
         print("h: ",  self.old_hue, " s: ", self.old_sat, " v: ",  e)
-        rgb = cl.hsv2rgb(self.old_hue, self.old_sat, e)
+        rgb = cl.hsv2rgb(self.old_hue/100, self.old_sat/100, e/100)
         print("r: ",  rgb[0], " g: ", rgb[1], " b: ",  rgb[2])
         cor = '#%02x%02x%02x' % (rgb[0], rgb[1], rgb[2])
         print(cor)
@@ -364,7 +364,7 @@ class main:
         self.img = Image.open(url)
         self.orimg = self.img
         i = np.array(self.img)
-        i = colors.rgb2gray(i)
+        i = cl.rgb2gray(i)
         self.img = Image.fromarray(i)
         self.old_img = self.img
         self.c.image = ImageTk.PhotoImage(self.img)
@@ -380,6 +380,7 @@ class main:
 
     def drawWidgets(self):
         #self.master.resizable(width=False, height=False)
+        self.master.minsize(width=600, height=300)
         self.controls = Frame(self.master,padx = 5,pady = 5)
         Label(self.controls, text='Raio pincel:',font=('arial 18')).grid(row=0,column=0)
         self.slider = ttk.Scale(self.controls,from_= 200, to = 5,command=self.changeW,orient=VERTICAL)
@@ -474,6 +475,6 @@ if __name__ == '__main__':
      
     root = Tk()
     main(root)
-    root.geometry("600x300+100+100")
-    root.title('Fotocompra')
+    root.geometry("800x300+100+100")
+    root.title('Fotossíntese')
     root.mainloop()
