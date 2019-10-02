@@ -248,7 +248,7 @@ class main:
     def changeH(self,e):  #mudando a cor foreground
         e = int(round(float(e)))
         print("h: ",  e, " s: ", self.old_sat, " v: ",  self.old_val)
-        rgb = cl.hsv2rgb(e/100, self.old_sat/100, self.old_val/100)
+        rgb = cl.hsv2rgb(e, self.old_sat/100, self.old_val/100)
         print("r: ",  rgb[0], " g: ", rgb[1], " b: ",  rgb[2])
         cor = '#%02x%02x%02x' % (rgb[0], rgb[1], rgb[2])
         print(cor)
@@ -259,7 +259,7 @@ class main:
     def changeS(self,e):  #mudando a cor foreground
         e = int(round(float(e)))
         print("h: ",  self.old_hue, " s: ", e, " v: ",  self.old_val)
-        rgb = cl.hsv2rgb(self.old_hue/100, e/100, self.old_val/100)
+        rgb = cl.hsv2rgb(self.old_hue, e/100, self.old_val/100)
         print("r: ", rgb[0], " g: ", rgb[1], " b: ",  rgb[2])
         cor = '#%02x%02x%02x' % (rgb[0], rgb[1], rgb[2])
         print(cor)
@@ -269,7 +269,7 @@ class main:
     def changeV(self,e):  #mudando a cor foreground
         e = int(round(float(e)))
         print("h: ",  self.old_hue, " s: ", self.old_sat, " v: ",  e)
-        rgb = cl.hsv2rgb(self.old_hue/100, self.old_sat/100, e/100)
+        rgb = cl.hsv2rgb(self.old_hue, self.old_sat/100, e/100)
         print("r: ",  rgb[0], " g: ", rgb[1], " b: ",  rgb[2])
         cor = '#%02x%02x%02x' % (rgb[0], rgb[1], rgb[2])
         print(cor)
@@ -426,13 +426,13 @@ class main:
         self.cordisp = self.colorHSV.create_rectangle((0, 0, 50, 50), fill="black")
         self.colorHSV.grid(row=0, column=1)
         self.sliderH = Scale(self.abaHSV,from_= 0, to = 360,width=7,command=self.changeH,orient=HORIZONTAL, fg="red",troughcolor="dark red")
-        Label(self.abaHSV, text='H:',font=('roboto 12'), fg="red").grid(row=1,column=0)
+        Label(self.abaHSV, text='H(°):',font=('roboto 12'), fg="red").grid(row=1,column=0)
         self.sliderH.grid(row=1, column=1)
         self.sliderS = Scale(self.abaHSV,from_= 0, to = 100,width=7,command=self.changeS,orient=HORIZONTAL, fg="green",troughcolor="dark green")
-        Label(self.abaHSV, text='S:',font=('roboto 12'), fg="green").grid(row=2,column=0)
+        Label(self.abaHSV, text='S(%):',font=('roboto 12'), fg="green").grid(row=2,column=0)
         self.sliderS.grid(row=2, column=1)
         self.sliderV = Scale(self.abaHSV,from_= 0, to = 100,width=7,command=self.changeV,orient=HORIZONTAL, fg="blue",troughcolor="dark blue")
-        Label(self.abaHSV, text='V:',font=('roboto 12'), fg="blue").grid(row=3,column=0)
+        Label(self.abaHSV, text='V(%):',font=('roboto 12'), fg="blue").grid(row=3,column=0)
         self.sliderV.grid(row=3, column=1)
 
         Button(self.controls, text="Função",command=self.drawfunc).grid(row=1,column=0)
