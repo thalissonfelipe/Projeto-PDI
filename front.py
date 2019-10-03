@@ -231,6 +231,14 @@ class main:
         cor = '#%02x%02x%02x' % (e, self.old_green, self.old_blue)
         self.colordisplay.itemconfig(self.cordisp, fill=cor)
         self.old_red = e
+        (h,s,v) = cl.rgb2hsv(e, self.old_green, self.old_blue)
+        print(h,s,v)
+        self.sliderH.set(h)
+        self.old_hue = h
+        self.sliderS.set(s)
+        self.old_sat = s
+        self.sliderV.set(v)
+        self.old_val = v
         #self.colordisplay['bg'] = r,g,b
     
     def changeG(self,e):  #mudando a cor foreground
@@ -238,43 +246,68 @@ class main:
         cor = '#%02x%02x%02x' % (self.old_red, e, self.old_blue)
         self.colordisplay.itemconfig(self.cordisp, fill=cor)
         self.old_green = e
+        (h,s,v) = cl.rgb2hsv(self.old_red, e, self.old_blue)
+        print(h,s,v)
+        self.sliderH.set(h)
+        self.old_hue = h
+        self.sliderS.set(s)
+        self.old_sat = s
+        self.sliderV.set(v)
+        self.old_val = v
 
     def changeB(self,e):  #mudando a cor foreground
         e = int(round(float(e)))
         cor = '#%02x%02x%02x' % (self.old_red, self.old_green, e)
         self.colordisplay.itemconfig(self.cordisp, fill=cor)
         self.old_blue = e
+        (h,s,v) = cl.rgb2hsv(self.old_red, self.old_green, e)
+        print(h,s,v)
+        self.sliderH.set(h)
+        self.old_hue = h
+        self.sliderS.set(s)
+        self.old_sat = s
+        self.sliderV.set(v)
+        self.old_val = v
 
     def changeH(self,e):  #mudando a cor foreground
         e = int(round(float(e)))
-        print("h: ",  e, " s: ", self.old_sat, " v: ",  self.old_val)
         rgb = cl.hsv2rgb(e, self.old_sat/100, self.old_val/100)
-        print("r: ",  rgb[0], " g: ", rgb[1], " b: ",  rgb[2])
         cor = '#%02x%02x%02x' % (rgb[0], rgb[1], rgb[2])
-        print(cor)
-        self.colorHSV.itemconfig(self.cordisp, fill=cor)
+        self.colordisplay.itemconfig(self.cordisp, fill=cor)
         self.old_hue = e
+        self.sliderR.set(rgb[0])
+        self.old_red = rgb[0]
+        self.sliderG.set(rgb[1])
+        self.old_green = rgb[1]
+        self.sliderB.set(rgb[2])
+        self.old_blue = rgb[2]
         #self.colordisplay['bg'] = r,g,b
     
     def changeS(self,e):  #mudando a cor foreground
         e = int(round(float(e)))
-        print("h: ",  self.old_hue, " s: ", e, " v: ",  self.old_val)
         rgb = cl.hsv2rgb(self.old_hue, e/100, self.old_val/100)
-        print("r: ", rgb[0], " g: ", rgb[1], " b: ",  rgb[2])
         cor = '#%02x%02x%02x' % (rgb[0], rgb[1], rgb[2])
-        print(cor)
-        self.colorHSV.itemconfig(self.cordisp, fill=cor)
+        self.colordisplay.itemconfig(self.cordisp, fill=cor)
         self.old_sat = e
+        self.sliderR.set(rgb[0])
+        self.old_red = rgb[0]
+        self.sliderG.set(rgb[1])
+        self.old_green = rgb[1]
+        self.sliderB.set(rgb[2])
+        self.old_blue = rgb[2]
 
     def changeV(self,e):  #mudando a cor foreground
         e = int(round(float(e)))
-        print("h: ",  self.old_hue, " s: ", self.old_sat, " v: ",  e)
         rgb = cl.hsv2rgb(self.old_hue, self.old_sat/100, e/100)
-        print("r: ",  rgb[0], " g: ", rgb[1], " b: ",  rgb[2])
         cor = '#%02x%02x%02x' % (rgb[0], rgb[1], rgb[2])
-        print(cor)
-        self.colorHSV.itemconfig(self.cordisp, fill=cor)
+        self.colordisplay.itemconfig(self.cordisp, fill=cor)
         self.old_val = e
+        self.sliderR.set(rgb[0])
+        self.old_red = rgb[0]
+        self.sliderG.set(rgb[1])
+        self.old_green = rgb[1]
+        self.sliderB.set(rgb[2])
+        self.old_blue = rgb[2]
     
 
     def save(self):  #mudando a cor do background
@@ -378,6 +411,10 @@ class main:
         self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
         self.c.pack()
 
+        self.sizelbl['text'] = "Tamanho da imagem: %02dx%02d" %(self.size[0],self.size[1])
+
+        
+
     def drawWidgets(self):
         #self.master.resizable(width=False, height=False)
         self.master.minsize(width=600, height=300)
@@ -386,9 +423,6 @@ class main:
         self.slider = ttk.Scale(self.controls,from_= 200, to = 5,command=self.changeW,orient=VERTICAL)
         self.slider.set(self.penwidth)
         self.slider.grid(row=0,column=1)
-        #self.input = Entry(self.controls, font=('arial 10'))
-        #self.input.focus()
-        #self.input.grid(row=1,column=0)
         self.controls.pack(side=LEFT, expand=False)
 
 
@@ -397,17 +431,23 @@ class main:
         self.middledata = Frame(self.data).grid(row=0)
         self.bottomdata = Frame(self.data).grid(row=1)
 
-        
+        self.colorframe = ttk.Frame(self.topdata)
+        self.colorframe.pack(side=TOP)
+        self.properties = ttk.Frame(self.topdata)
+        self.properties.pack(side=BOTTOM)
+        strsize = "Tamanho da imagem: %02dx%02d" %(self.size[0],self.size[1])
+        self.sizelbl = Label(self.properties, text=strsize,font=('roboto 10'))
+        self.sizelbl.grid(row=0,column=0)
         tab_control = ttk.Notebook(self.topdata)#1 
         self.abaRGB = ttk.Frame(tab_control)#2
         self.abaHSV = ttk.Frame(tab_control)#2
         tab_control.add(self.abaRGB, text='RGB')#3
         tab_control.add(self.abaHSV, text='HSV')
-        tab_control.pack(expand=1, fill='both')
+        tab_control.pack(side=BOTTOM,expand=1, fill='both')
 
         #SLIDERS RGB
-        self.colordisplay = Canvas(self.abaRGB,width=50,height=50,bg=self.color_fg)
-        Label(self.abaRGB, text='Cor: ',font=('roboto 12')).grid(row=0,column=0)
+        self.colordisplay = Canvas(self.colorframe,width=50,height=50,bg=self.color_fg)
+        Label(self.colorframe, text='Cor: ',font=('roboto 12')).grid(row=0,column=0)
         self.cordisp = self.colordisplay.create_rectangle((0, 0, 50, 50), fill="black")
         self.colordisplay.grid(row=0, column=1)
         self.sliderR = Scale(self.abaRGB,from_= 0, to = 255,width=7,command=self.changeR,orient=HORIZONTAL, fg="red",troughcolor="dark red")
@@ -421,10 +461,10 @@ class main:
         self.sliderB.grid(row=3, column=1)
 
         #SLIDERS HSV
-        self.colorHSV = Canvas(self.abaHSV,width=50,height=50,bg=self.color_fg)
+        #self.colorHSV = Canvas(self.abaHSV,width=50,height=50,bg=self.color_fg)
         Label(self.abaHSV, text='Cor: ',font=('roboto 12')).grid(row=0,column=0)
-        self.cordisp = self.colorHSV.create_rectangle((0, 0, 50, 50), fill="black")
-        self.colorHSV.grid(row=0, column=1)
+        #self.cordisp = self.colordisplay.create_rectangle((0, 0, 50, 50), fill="black")
+        #self.colorHSV.grid(row=0, column=1)
         self.sliderH = Scale(self.abaHSV,from_= 0, to = 360,width=7,command=self.changeH,orient=HORIZONTAL, fg="red",troughcolor="dark red")
         Label(self.abaHSV, text='H(°):',font=('roboto 12'), fg="red").grid(row=1,column=0)
         self.sliderH.grid(row=1, column=1)
@@ -435,7 +475,7 @@ class main:
         Label(self.abaHSV, text='V(%):',font=('roboto 12'), fg="blue").grid(row=3,column=0)
         self.sliderV.grid(row=3, column=1)
 
-        Button(self.controls, text="Função",command=self.drawfunc).grid(row=1,column=0)
+        #Button(self.controls, text="Função",command=self.drawfunc).grid(row=1,column=0)
         Button(self.controls, text="Carregar imagem",command=self.loadimg).grid(row=1,column=1)
         self.c = Canvas(self.master,width=self.size[0],height=self.size[1],bg=self.color_bg, cursor='circle')
         self.mcanvas = np.zeros(self.size, dtype=int)
@@ -461,6 +501,7 @@ class main:
         menu.add_cascade(label='Efeitos',menu=effectmenu)
         effectmenu.add_command(label='Aplicar Negativo',command=self.efeito_neg)
         effectmenu.add_command(label='Aplicar Eq. Histograma',command=self.efeito_hist)
+        effectmenu.add_command(label='Aplicar Função',command=self.drawfunc)
         effectmenu.add_separator()
         effectmenu.add_command(label='Filtro Média',command=self.efeito_meanfilter)
         effectmenu.add_command(label='Filtro Laplaciano',command=self.efeito_laplacefilter)
