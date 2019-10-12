@@ -9,7 +9,7 @@ Implementação de um Photoshop para a cadeira de Processamento Digital de Image
 
 ### Exec
 
-python3 front.py
+`$ python3 front.py`
 
 ### Filtros implementados
 
