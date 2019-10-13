@@ -2,6 +2,15 @@ import math
 import numpy as np
 
 
+def is_grey_scale(image):
+        img = image
+        w,h = img.size
+        for i in range(w):
+            for j in range(h):
+                r,g,b = img.getpixel((i,j))
+                if r != g != b: return False
+        return True
+
 def rgb2gray(image):
     if len(image.shape) == 2:  # Check if image is already grayscale
         return image
@@ -47,11 +56,8 @@ def rgb2hsv(r, g, b):
     r, g, b = r / 255.0, g / 255.0, b / 255.0
     h, s, v = 0, 0, 0
     maximo = max(r, g, b)
-    print("MAX: ",maximo)
     minimo = min(r, g, b)
-    print("MIN: ",minimo)
     dif = maximo - minimo
-    print("DIF: ",dif)
 
     v = maximo
 
