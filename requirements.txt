@@ -1,0 +1,5 @@
+opencv-python
+imageio
+matplotlib
+numpy
+pillow

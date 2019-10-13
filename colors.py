@@ -17,10 +17,6 @@ def rgb2gray(image):
     else:
         return np.dot(image[..., :3], [0.298936, 0.587043, 0.114021])
 
-# Convert RGB image to grayscale using weighted average
-# def rgb2gray(r, g, b):
-#     return (r * 0.298936) + (g * 0.587043) + (b * 0.114021)
-
 
 # Convert RGB image to grayscale using arithmetic average
 def rgb2gray_avg(r, g, b):
@@ -28,30 +24,6 @@ def rgb2gray_avg(r, g, b):
 
 
 # Convert RGB colors to HSV
-def rgb3hsv(r, g, b):
-    r, g, b = r / 255.0, g / 255.0, b / 255.0
-    h, s, v = 0, 0, 0
-    maximo = max(r, g, b)
-    print("MAX: ",maximo)
-    minimo = min(r, g, b)
-    print("MIN: ",minimo)
-    dif = maximo - minimo
-    print("DIF: ",dif)
-
-    if maximo == minimo:
-        h = 0
-    elif maximo == r:
-        h = (60 * ((g - b) / dif) + 360) % 360
-    elif maximo == g:
-        h = (60 * ((b - r) / dif) + 120) % 360
-    elif maximo == b:
-        s = 0
-    else:
-        s = (dif / maximo) * 100
-        v = maximo * 100
-
-    return (h, s, v)
-
 def rgb2hsv(r, g, b):
     r, g, b = r / 255.0, g / 255.0, b / 255.0
     h, s, v = 0, 0, 0
@@ -84,6 +56,7 @@ def rgb2hsv(r, g, b):
             h = h - 1
 
     return (h*360, s*100, v*100)
+
 
 # Convert HSV colors to RGB
 def hsv2rgb(h, s, v):

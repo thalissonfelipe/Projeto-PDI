@@ -11,7 +11,7 @@ def imshow(image):
 def plot_hist(hist):
     x = [i for i in range(len(hist))]
     plt.bar(x, height=hist, width=1.0)
-    plt.show()
+    plt.show()  
 
 
 def subplot_hist(hist, histeq):
@@ -72,6 +72,7 @@ def geometric_mean_aux(kernel):
     result = 1
     for x in kernel:
         result *= x
+        
     return result
 
 
@@ -82,13 +83,37 @@ def harmonic_mean_aux(kernel):
         if x == 0:
             return 0
         result += (1. / x)
+
     return result
 
 
-def contraharmonic_mean_aux(kernel):
-    kernel = np.ravel(kernel)
+def contraharmonic_mean_aux(kernel, Q):
+    kernel = np.ravel(np.array(kernel, dtype=np.float64))
     n, d = 0, 0
     for x in kernel:
-        n += x ** 2
-        d += x
+        if x == 0 and (Q + 1 < 0 or Q < 0):
+            return 0
+        n += np.power(x, Q+1)
+        d += np.power(x, Q)
+
+    if d == 0:
+        return 0
+
     return n / d
+
+
+def split(image):
+    red = image[:,:,0]
+    green = image[:,:,1]
+    blue = image[:,:,2]
+
+    return (red, green, blue)
+
+
+def merge(R, G, B):
+    output = np.zeros((R.shape[0], R.shape[1], 3), dtype=np.uint8)
+    output[:,:,0] = R
+    output[:,:,1] = G
+    output[:,:,2] = B
+
+    return output
