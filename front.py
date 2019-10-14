@@ -358,6 +358,7 @@ class main:
         #url = self.input
         #img = Image.open('images/einstein.jpeg')
         img = self.img
+        i = np.array(img) 
         it = bk.negative_filter(i) 
         self.img = Image.fromarray(it)
         self.old_img = img
@@ -482,23 +483,33 @@ class main:
         
         
 
-    def fourierbkp(self):
-        #url = 'images/'+self.input.get()
-        #url = self.input
-        #img = Image.open('images/einstein.jpeg')
-        img = self.img
-        i = np.array(img)
-        i = cl.rgb2gray(i)
-        it = fr.fft2(i)
-        ft = fr.fft2shift(it)
-        espectro = plt.imshow(abs(ft), cmap='gray')
+    def inversaFourier(self):
+        img = Image.open('canvas.jpg')
+        filtro = np.array(img)
+        filtro = cl.rgb2gray(filtro)
+        #espectro = np.array(self.img)
+        espectro = self.fouriert
+        invimg = np.zeros(espectro.shape)
+        diffwidth, diffheight = ( filtro.shape[0] - espectro.shape[0] ), ( filtro.shape[1] - espectro.shape[1] )
+        print("Diff: ",diffwidth,", ", diffheight)
+        initw = int(round(diffwidth/2))
+        finalw = diffwidth - initw
+        inith = int(round(diffheight/2))
+        finalh = diffheight - inith
+        print("Dimensões: ", initw, ", ", finalw, ", ", inith, ", ",finalh)
+        print("ESPECTRO: ",espectro.shape)
+        print("FILTRO: ",filtro.shape)
+        width = filtro.shape[0] - finalw
+        height = filtro.shape[1] - finalh
+        filtro = filtro[initw:width, inith:height]
+        print(filtro.shape)
+        #for m in range(espectro.shape[0]):
+        #    for n in range(espectro.shape[1]):
+        #        invimg[m,n] = espectro[m,n] * filtro[m,n]
 
-
-        plt.savefig('images/ftemp.png', bbox_inches='tight')   # save the figure to file
-        #plt.close(fig)
-        img = Image.open('images/ftemp.png')
-        #self.img = Image.fromarray(ft)
-        self.img = img
+        f = fr.ifft2shift(espectro)
+        f = fr.ifft2(f)
+        self.img = Image.fromarray(f)
         self.old_img = img
         self.c.image = ImageTk.PhotoImage(self.img)
         self.c.config(width=self.img.width, height=self.img.height)
@@ -509,14 +520,16 @@ class main:
         #url = 'images/'+self.input.get()
         #url = self.input
         #img = Image.open('images/einstein.jpeg')
+        self.submitDraw["state"]="active"
         img = self.img
         i = np.array(img)
         i = cl.rgb2gray(i)
         it = fr.fft2(i)
         ft = fr.fft2shift(it)
-        
+        self.fouriert = ft
+        #print(self.ft.shape)
         fig = plt.figure(figsize=(5,5))
-        print(abs(ft))
+        #print(abs(ft))
         espectro = plt.imshow(abs(ft), cmap='gray')
         ax = plt.gca()
         ax.set_xticklabels([]) 
@@ -528,9 +541,9 @@ class main:
         fou = np.array(img)
         width = fou.shape[0] - 40
         height = fou.shape[1] - 40
-        print(fou.shape)
+        #print(fou.shape)
         fou = fou[40:width, 40:height]
-        print(fou.shape)
+        #print(fou.shape)
 
         #canvas = FigureCanvasTkAgg(fig,self.c)
         #canvas.show()
@@ -549,8 +562,10 @@ class main:
         self.c.create_image(self.img.width/2, self.img.height/2, anchor=CENTER, image=self.c.image)
         self.c.pack()
         white = (255, 255, 255)
+        print('Tamanho: ',self.size)
         self.input = Image.new("RGB", (self.size), white)
         self.draw = ImageDraw.Draw(self.input)
+        
 
     
 
@@ -604,6 +619,8 @@ class main:
         self.slider = ttk.Scale(self.abacontrole,from_= 5, to = 200,command=self.changeW,orient=HORIZONTAL, style="BW.Horizontal.TScale")
         self.slider.set(self.penwidth)
         self.slider.grid(row=1,column=0, columnspan=2, sticky=W+E)
+        self.submitDraw = Button(self.abacontrole, text="Aplicar Filtro",command=self.inversaFourier,bg='#62727b',fg='#000000',state="disabled")
+        self.submitDraw.grid(row=2,column=0, columnspan=2, sticky=W+E)
         desfaz = Button(self.toolbar, text="<<",command=lambda:self.undo(0),bg='#62727b',fg='#ffffff')
         desfaz.grid(row=0,column=0)
         self.toolbar.pack(side=TOP,expand=False, fill='x')
