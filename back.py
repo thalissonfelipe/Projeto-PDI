@@ -31,7 +31,7 @@ def gamma_filter(image, gamma, c=1):
 
 
 def histogram(image, bins=256):
-    if len(image.shape) == 2:  # 2D Grayscale Image
+    if len(image.shape) == 2:  # Grayscale Image
         hist = np.zeros(bins, dtype=np.int)
         flat = np.asarray(image)
         flat = flat.flatten()
@@ -64,15 +64,14 @@ def equalize_hist2(image):
 
 
 def equalize_hist(image):
-    if len(image.shape) == 2:  # 2D Grayscale Image
-        y = util.cumulative_distribution(hist)
+    if len(image.shape) == 2:  # Grayscale Image
+        hist = histogram(image)
+        cdf = util.cumulative_distribution(hist)
         flat = (np.asarray(image)).flatten()
+        output = cdf[flat]
+        output = np.reshape(output, image.shape)
 
-        new_img = y[flat]
-        new_img = np.reshape(new_img, image.shape)
-
-        return new_img
-
+        return output
     else:  # RGB Image
         height, width = image.shape[:2]
         # Converting rgb to hsv
@@ -100,6 +99,7 @@ def equalize_hist(image):
                 rgb_image[row,col][2] = b
 
         return rgb_image
+
 
 def conv(image, kernel):
     height, width = image.shape
@@ -356,21 +356,7 @@ def sepia_filter(image):
 
 
 if __name__ == '__main__':
-    i = imageio.imread('images/blurring.jpeg')
-    #i = rgb2gray(i)
-    #it = gaussian_filter(i, 3, 0.5)
-    #r, g, b = histogram(i)
-    #print(r, g, b)
-    #it = equalize_hist(i)
-    #it = highboost(i, -5, 3)
-    #it = sharpen_filter(i)
-    #it = gaussian_filter(i, 3, 0.1)
-    #it = sepia_filter(i)
-    #it = laplacian_filter(i)
-    it = mean_filter(i, 3)
-    #it = sobel_filter(i) xxx
-    #it = geometric_mean_filter_rgb(i, 3)
-    #it = harmonic_mean_filter_rgb(i, 7)
-    #it = contraharmonic_mean_filter(i, 5)
-    #it = contraharmonic_mean_filter_rgb(i, 3, -1.5)
+    i = imageio.imread('images/lung.jpeg')
+    i = rgb2gray(i)
+    it = equalize_hist(i)
     util.subplot_img(i, it)

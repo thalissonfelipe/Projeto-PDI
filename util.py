@@ -34,37 +34,19 @@ def subplot_img(image, it):
 
 
 def cumulative_distribution(hist):
-    if type(hist) != 'tuple':  # 2D Grayscale Image
-        x = iter(hist)
-        y = [next(x)]
+    x = iter(hist)
+    y = [next(x)]
 
-        for i in x:
-            y.append(y[-1] + i)
+    for i in x:
+        y.append(y[-1] + i)
 
-        y = np.array(y)
-        numerator = (y - y.min()) * 255
-        denominator = y.max() - y.min()
-        y = numerator / denominator
-        y = y.astype('uint8')
+    y = np.array(y)
+    numerator = (y - y.min()) * 255
+    denominator = y.max() - y.min()
+    y = numerator / denominator
+    y = y.astype(np.uint8)
 
-        return y
-    else:  # RGB Image
-        r, g, b = hist
-        xr, yg, zb = iter(r), iter(g), iter(b)
-        cr, cg, cb = [next(xr)], [next(yg)], [next(zb)]
-
-        for x, y, z in zip(r, g, b):
-            cr.append(cr[-1] + x)
-            cg.append(cg[-1] + y)
-            cb.append(cb[-1] + z)
-
-        cr, cg, cb = np.array(cr), np.array(cg), np.array(cb)
-        nr, ng, nb = (cr-cr.min())*255, (cg-cg.min())*255, (cb-cb.min())*255
-        dr, dg, db = cr.max()-cr.min(), cg.max()-cg.min(), cb.max()-cb.min()
-        cr, cg, cb = (nr/dr).astype('uint8'), (ng/dg).astype('uint8'), \
-                                              (nb/db).astype('uint8')
-
-        return (cr, cg, cb)
+    return y
 
 
 def geometric_mean_aux(kernel):
