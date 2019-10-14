@@ -11,6 +11,7 @@ import matplotlib
 matplotlib.use("TkAgg") 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
+import os
 
 
 class main:
@@ -380,6 +381,94 @@ class main:
         self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
         self.c.pack()
 
+    def passa_alta(self, radius):
+        xx, yy = np.mgrid[:self.size[0], :self.size[1]]
+        xcenter = self.size[0]//2
+        ycenter = self.size[1]//2 
+        # circles contains the squared distance to the (100, 100) point
+        # we are just using the circle equation learnt at school
+        circle = (xx - xcenter) ** 2 + (yy - ycenter) ** 2
+        # donuts contains 1's and 0's organized in a donut shape
+        # you apply 2 thresholds on circle to define the shape
+        filtro = np.logical_and(True, circle > (radius*100))
+        #self.img = Image.fromarray(donut) 
+        #self.old_img = img
+        #self.c.image = ImageTk.PhotoImage(self.img)
+        #self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
+        #self.c.pack()
+        espectro = self.fouriert
+        for m in range(espectro.shape[0]):
+            for n in range(espectro.shape[1]):
+                if filtro[m,n] == 0:
+                    espectro[m,n] = 0
+        f = fr.ifft2shift(espectro)
+        f = fr.ifft2(f)
+        self.img = Image.fromarray(f)
+        #self.old_img = img
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.config(width=self.img.width, height=self.img.height)
+        self.c.create_image(self.img.width/2, self.img.height/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+
+    def passa_faixa(self, minr, maxr):
+        xx, yy = np.mgrid[:self.size[0], :self.size[1]]
+        xcenter = self.size[0]//2
+        ycenter = self.size[1]//2 
+        # circles contains the squared distance to the (100, 100) point
+        # we are just using the circle equation learnt at school
+        circle = (xx - xcenter) ** 2 + (yy - ycenter) ** 2
+        # donuts contains 1's and 0's organized in a donut shape
+        # you apply 2 thresholds on circle to define the shape
+        filtro = np.logical_and(circle < (maxr*100), circle > (minr*100))
+        #self.img = Image.fromarray(donut) 
+        #self.old_img = img
+        #self.c.image = ImageTk.PhotoImage(self.img)
+        #self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
+        #self.c.pack()
+        espectro = self.fouriert
+        for m in range(espectro.shape[0]):
+            for n in range(espectro.shape[1]):
+                if filtro[m,n] == 0:
+                    espectro[m,n] = 0
+        f = fr.ifft2shift(espectro)
+        f = fr.ifft2(f)
+        self.img = Image.fromarray(f)
+        #self.old_img = img
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.config(width=self.img.width, height=self.img.height)
+        self.c.create_image(self.img.width/2, self.img.height/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+
+    def passa_baixa(self, radius):
+        xx, yy = np.mgrid[:self.size[0], :self.size[1]]
+        xcenter = self.size[0]//2
+        ycenter = self.size[1]//2 
+        # circles contains the squared distance to the (100, 100) point
+        # we are just using the circle equation learnt at school
+        circle = (xx - xcenter) ** 2 + (yy - ycenter) ** 2
+        # donuts contains 1's and 0's organized in a donut shape
+        # you apply 2 thresholds on circle to define the shape
+        filtro = np.logical_and(circle < (radius*100), True)
+        #self.img = Image.fromarray(donut) 
+        #self.old_img = img
+        #self.c.image = ImageTk.PhotoImage(self.img)
+        #self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
+        #self.c.pack()
+        espectro = self.fouriert
+        for m in range(espectro.shape[0]):
+            for n in range(espectro.shape[1]):
+                if filtro[m,n] == 0:
+                    espectro[m,n] = 0
+        f = fr.ifft2shift(espectro)
+        f = fr.ifft2(f)
+        self.img = Image.fromarray(f)
+        #self.old_img = img
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.config(width=self.img.width, height=self.img.height)
+        self.c.create_image(self.img.width/2, self.img.height/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+
+
     def efeito_meanfilter(self):
         #url = 'images/'+self.input.get()
         #url = self.input
@@ -415,6 +504,7 @@ class main:
         self.c.pack()
         self.controls.hide(self.abamean)
         self.controls.add(self.abacontrole)
+        self.abacontrole.focus()
 
 
     def efeito_laplacefilter(self):
@@ -489,7 +579,6 @@ class main:
         filtro = cl.rgb2gray(filtro)
         #espectro = np.array(self.img)
         espectro = self.fouriert
-        invimg = np.zeros(espectro.shape)
         diffwidth, diffheight = ( filtro.shape[0] - espectro.shape[0] ), ( filtro.shape[1] - espectro.shape[1] )
         print("Diff: ",diffwidth,", ", diffheight)
         initw = int(round(diffwidth/2))
@@ -503,9 +592,11 @@ class main:
         height = filtro.shape[1] - finalh
         filtro = filtro[initw:width, inith:height]
         print(filtro.shape)
-        #for m in range(espectro.shape[0]):
-        #    for n in range(espectro.shape[1]):
-        #        invimg[m,n] = espectro[m,n] * filtro[m,n]
+        for m in range(espectro.shape[0]):
+            for n in range(espectro.shape[1]):
+                if filtro[m,n] == 0:
+                    espectro[m,n] = 0
+                #invimg[m,n] = espectro[m,n] * filtro[m,n]
 
         f = fr.ifft2shift(espectro)
         f = fr.ifft2(f)
@@ -522,6 +613,7 @@ class main:
         #img = Image.open('images/einstein.jpeg')
         self.submitDraw["state"]="active"
         img = self.img
+        self.old_img = img
         i = np.array(img)
         i = cl.rgb2gray(i)
         it = fr.fft2(i)
@@ -544,7 +636,6 @@ class main:
         #print(fou.shape)
         fou = fou[40:width, 40:height]
         #print(fou.shape)
-
         #canvas = FigureCanvasTkAgg(fig,self.c)
         #canvas.show()
         #canvas.get_tk_widget().pack(side=TOP, fill=BOTH, expand=1)
@@ -554,7 +645,7 @@ class main:
         #img = Image.open('images/ftemp.png')
         self.img = Image.fromarray(fou)
         #self.img = img
-        self.old_img = img
+        
         self.c.image = ImageTk.PhotoImage(self.img)
         self.size[0] = self.img.width
         self.size[1] = self.img.height
@@ -680,12 +771,19 @@ class main:
         #Button(self.controls, text="Função",command=self.drawfunc).grid(row=1,column=0)
         #iconl = ImageTk.PhotoImage(file = 'icone-lapis.png')
         #iconl = iconl.subsample(5, 5) 
-        Button(self.toolbar, text="Carregar imagem",command=self.loadimg,bg='#98ee99',fg='#000000').grid(row=0,column=1,sticky=W+E)
+        loadButton = Button(self.toolbar, text="Carregar imagem",command=self.loadimg,bg='#98ee99',fg='#000000')
+        loadButton.grid(row=0,column=1,sticky=W+E)
+        #photo = PhotoImage(file="lapis.gif")
+        #loadButton.config(image=photo, compound=LEFT)
+        #print(os.getcwd())
+        #print(os.listdir())
         self.c = Canvas(self.master,width=self.size[0],height=self.size[1],bg=self.color_bg, cursor='circle')
         self.mcanvas = np.zeros(self.size, dtype=int)
 
         self.topdata.pack(side=RIGHT,expand=False)
         self.c.pack(side=TOP,expand=False)
+        
+
         #self.data.grid(row=2, column=0)
 
 
@@ -710,6 +808,9 @@ class main:
         effectmenu.add_command(label='Trans. Fourier',command=self.fourier)
         effectmenu.add_separator()
         effectmenu.add_command(label='Filtro Média',command=self.efeito_meanfilter)
+        effectmenu.add_command(label='Filtro Passa Baixa',command=lambda:self.passa_baixa(100))
+        effectmenu.add_command(label='Filtro Passa Alta',command=lambda:self.passa_alta(100))
+        effectmenu.add_command(label='Filtro Passa Faixa',command=lambda:self.passa_faixa(100,400))
         effectmenu.add_command(label='Filtro Laplaciano',command=self.efeito_laplacefilter)
         menu.add_cascade(label='Opções',menu=optionmenu)
         optionmenu.add_command(label='Salvar Canvas',command=self.save)
@@ -722,7 +823,7 @@ if __name__ == '__main__':
      
     root = Tk()
     main(root)
-    root.geometry("1000x450+100+100")
+    root.geometry("1000x520+100+100")
     root.title('Fotossíntese')
     root.iconbitmap('Fs.ico')
     root.mainloop()

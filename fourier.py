@@ -118,8 +118,9 @@ if __name__ == '__main__':
     i = rgb2gray(i)
     f = fft2(i)
     f = fft2shift(f)
+    plt.imshow(abs(f), cmap='gray')
+    plt.show()
     f = ifft2shift(f)
     f = ifft2(f)
 
-    plt.imshow(abs(f), cmap='gray')
-    plt.show()
+    
