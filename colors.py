@@ -1,5 +1,6 @@
 import math
 import numpy as np
+from PIL import ImageTk, Image, ImageDraw
 
 
 def is_grey_scale(image):
@@ -80,9 +81,35 @@ def hsv2rgb(h, s, v):
     if hi == 5:
         return (v, p, q)
 
+def imgrgb2hsv(img):
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            r, g, b = img[i,j,0], img[i,j,1], img[i,j,2]
+            h, s, v = rgb2hsv(r,g,b)
+            img[i,j,0], img[i,j,1], img[i,j,2] = h, s, v
+    return img
+
+def chroma_key(img, imgfundo, cr,cg,cb, faixa):
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            r, g, b = img[i,j,0], img[i,j,1], img[i,j,2]
+            if r == cr and g == cg and b == cb:
+                img[i,j,0] = imgfundo[i,j,0] 
+                img[i,j,1] = imgfundo[i,j,1]
+                img[i,j,2] = imgfundo[i,j,2]
+    return img
 
 if __name__ == '__main__':
-    print(rgb2hsv(255, 0, 0))  # red
-    print(rgb2hsv(0, 255, 0))  # green
-    print(hsv2rgb(240, 1, 1))  # blue
-    print(hsv2rgb(300, 1, 1))  # magenta
+    img = Image.open('images/face_rgb.jpeg')
+    cor = np.array(img)
+    print("imagem frente: ",cor)
+    img = Image.open('images/forest.jpeg')
+    cornova = np.array(img)
+    print("imagem trás: ",cornova)
+
+    i = chroma_key(cor, cornova, 112, 69, 53, 0)
+    print("IMAGEM NOVA: ",i)
+    #print(rgb2hsv(255, 0, 0))  # red
+    #print(rgb2hsv(0, 255, 0))  # green
+    #print(hsv2rgb(240, 1, 1))  # blue
+    #print(hsv2rgb(300, 1, 1))  # magenta
