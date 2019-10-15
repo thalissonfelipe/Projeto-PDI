@@ -64,7 +64,19 @@ class main:
         self.draw.ellipse((x1 - r, y1 - r, x1 + r, y1 + r), fill=self.color_fg)
         filename = "canvas.jpg"
         self.input.save(filename)
-        
+
+        xx, yy = np.mgrid[:self.size[0], :self.size[1]]
+        xcenter = e.x
+        ycenter = e.y
+        # circles contains the squared distance to the (100, 100) point
+        # we are just using the circle equation learnt at school
+        circle = (xx - xcenter) ** 2 + (yy - ycenter) ** 2
+        # donuts contains 1's and 0's organized in a donut shape
+        # you apply 2 thresholds on circle to define the shape
+        #mc = np.logical_and(1, circle < (r*100))
+        #self.mcanvas = np.logical_and(mc, self.mcanvas)
+        #print(self.mcanvas)
+        #print(self.mcanvas.shape)
         #self.old_x = e.x
         #self.old_y = e.y
         #x1, y1 = ( e.x - 1 ), ( e.y - 1 )
@@ -90,6 +102,9 @@ class main:
         self.input = Image.new("RGB", (self.size), white)
         filename = "canvas.jpg"
         self.input.save(filename)
+        self.mcanvas = np.zeros(self.size, dtype=int)
+        print(self.mcanvas)
+        print(self.mcanvas.shape)
 
     def undo(self,e):
         self.c.image = ImageTk.PhotoImage(self.old_img)
@@ -309,8 +324,10 @@ class main:
         self.func = Tk()
         self.func.title('Função')
         self.func.bind('<B1-Motion>',self.changeCoord)
+        self.func.configure(background='#102027')
+        #self.func.resizable(width=False, height=False)
         self.func.c = Canvas(self.func,width=255,height=255,bg=self.color_bg, cursor='circle')
-        self.func.c.pack(expand=False)
+        self.func.c.grid(row=0, column=1, rowspan=10,columnspan=10)
         white = (255, 255, 255)
         height = 255
         width = 255
@@ -332,19 +349,37 @@ class main:
         #self.func.c.tag_bind(quad, '<B1-Motion>', self.changeCoord)
         #self.func.c.bind('<ButtonRelease-1>',self.reset)
         #1/3
-        quad = self.func.c.create_rectangle((x3 - 10, y3-5, x3,y3 + 5), fill="green")
+        quad = self.func.c.create_rectangle((x3 - 5, y3-5, x3+5,y3 + 5), fill="green")
         self.coorda = [x3, y3]
         #2/3
-        quad = self.func.c.create_rectangle((x4 - 10, y4-5, x4,y4 + 5), fill="green")
+        quad = self.func.c.create_rectangle((x4 - 5, y4-5, x4+5,y4 + 5), fill="green")
         self.coordb = [x4, y4]
         #1
         quad = self.func.c.create_rectangle((x2 - 10, 0, x2, 10), fill="green")
+
+        labeltick1 = Label(self.func,text="",bg='#62727b',fg='#ffffff',font=('roboto 10'))
+        labeltick1.grid(row=0, column=0, rowspan=10,sticky=N+S+W+E)
+        labeltick1 = Label(self.func,text="250",bg='#62727b',fg='#ffffff',font=('roboto 10'))
+        labeltick1.grid(row=0, column=0, sticky=W+E)
+        labeltick1 = Label(self.func,text="0",bg='#62727b',fg='#ffffff',font=('roboto 10'))
+        labeltick1.grid(row=10, column=0, sticky=W+E)
+
+        labeltick2 = Label(self.func,text="",bg='#62727b',fg='#ffffff',font=('roboto 10'))
+        labeltick2.grid(row=10, column=1, columnspan=10, sticky=W+E)
+        labeltick2 = Label(self.func,text="250",bg='#62727b',fg='#ffffff',font=('roboto 10'))
+        labeltick2.grid(row=10, column=10, sticky=W+E)
+        #labelticks = Label(self.func,text="0",bg='#62727b',fg='#ffffff',font=('roboto 10'))
+        #labelticks.grid(row=10, column=1, sticky=W+E)
+        #framebtn = Frame(self.func)
         button = Button(self.func, text="Aplicar",bg='#98ee99',fg='#000000',command=self.applyfunc)
-        button.pack(side = LEFT)
+        button.grid(row=12, column=1, columnspan=5, sticky=W+E)
         sair = Button(self.func, text="Sair",command=self.func.destroy)
-        sair.pack(side = RIGHT)
+        sair.grid(row=12, column=9,columnspan=2, sticky=W+E)
         cancelar = Button(self.func, text="Cancelar",bg='#FFe0e0',fg='#000000',command=lambda:self.undo(0))
-        cancelar.pack(side = RIGHT)
+        cancelar.grid(row=12, column=6,columnspan=3, sticky=W+E)
+
+        #cancelar.pack(side = RIGHT)
+        #framebtn.grid(row=2,column=0)
         #func.c.tag_bind(quad, "<B1-Motion>", self.setColor("red"))
         #print(x1, x2, y1, y2)
         
@@ -373,7 +408,11 @@ class main:
         #img = Image.open('images/einstein.jpeg')
         img = self.img
         i = np.array(img)
-        hist = bk.histogram(i)
+        if len(i.shape) == 2:
+            hist = bk.histogram(i)
+        else:
+            imghsv = cl.imgrgb2hsv(i)
+            hist = bk.histogram_hsv(imghsv)
         it = bk.equalize_hist(i, hist)
         self.img = Image.fromarray(it) 
         self.old_img = img
@@ -506,6 +545,20 @@ class main:
         self.controls.add(self.abacontrole)
         self.abacontrole.focus()
 
+    def gaussianfilter(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = self.img
+        i = np.array(img)
+        #i = colors.rgb2gray(i)
+        it = bk.gaussian_filter(i, 5, 0.8)
+        self.img = Image.fromarray(it) 
+        self.old_img = img
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+
 
     def efeito_laplacefilter(self):
         #url = 'images/'+self.input.get()
@@ -519,6 +572,44 @@ class main:
         self.img = Image.fromarray(it) 
         self.c.image = ImageTk.PhotoImage(self.img)
         self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+
+    def efeito_chromakey(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        imgfundo = np.array(self.img)
+        url = filedialog.askopenfilename()
+        #self.input = url
+        #img = Image.open('images/einstein.jpeg')
+        self.img = Image.open(url)
+        self.old_img = imgfundo
+        img = np.array(self.img)
+        print("Imagem: ",img)
+        #i = colors.rgb2gray(i)
+        it = cl.chroma_key(img, imgfundo, self.old_red, self.old_green, self.old_blue, 10)
+        print(it)
+        self.img = Image.fromarray(it)
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.config(width=self.img.width, height=self.img.height)
+        self.c.create_image(self.img.width/2, self.img.height/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+
+    def efeito_aumentarbrilho(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = np.array(self.img)
+        #self.input = url
+        #img = Image.open('images/einstein.jpeg')
+        print("Imagem: ",img)
+        #i = colors.rgb2gray(i)
+        it = cl.aumentarbrilho(img, 110)
+        print(it)
+        self.img = Image.fromarray(it)
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.config(width=self.img.width, height=self.img.height)
+        self.c.create_image(self.img.width/2, self.img.height/2, anchor=CENTER, image=self.c.image)
         self.c.pack()
 
     def histograma(self):
@@ -576,6 +667,41 @@ class main:
     def inversaFourier(self):
         img = Image.open('canvas.jpg')
         filtro = np.array(img)
+        filtro = cl.rgb2gray(filtro)
+        #espectro = np.array(self.img)
+        espectro = self.fouriert
+        diffwidth, diffheight = ( filtro.shape[0] - espectro.shape[0] ), ( filtro.shape[1] - espectro.shape[1] )
+        print("Diff: ",diffwidth,", ", diffheight)
+        initw = int(round(diffwidth/2))
+        finalw = diffwidth - initw
+        inith = int(round(diffheight/2))
+        finalh = diffheight - inith
+        print("Dimensões: ", initw, ", ", finalw, ", ", inith, ", ",finalh)
+        print("ESPECTRO: ",espectro.shape)
+        print("FILTRO: ",filtro.shape)
+        width = filtro.shape[0] - finalw
+        height = filtro.shape[1] - finalh
+        filtro = filtro[initw:width, inith:height]
+        print(filtro.shape)
+        for m in range(espectro.shape[0]):
+            for n in range(espectro.shape[1]):
+                if filtro[m,n] == 0:
+                    espectro[m,n] = 0
+                #invimg[m,n] = espectro[m,n] * filtro[m,n]
+
+        f = fr.ifft2shift(espectro)
+        f = fr.ifft2(f)
+        self.img = Image.fromarray(f)
+        self.old_img = img
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.config(width=self.img.width, height=self.img.height)
+        self.c.create_image(self.img.width/2, self.img.height/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+
+    def inversaGaussFourier(self):
+        img = Image.open('canvas.jpg')
+        filtro = np.array(img)
+        filtro = bk.gaussian_filter(filtro,5,0.5)
         filtro = cl.rgb2gray(filtro)
         #espectro = np.array(self.img)
         espectro = self.fouriert
@@ -676,7 +802,7 @@ class main:
         self.size[0] = self.img.width
         self.size[1] = self.img.height
         print(self.size[0],'x',self.size[1])
-        resize = '%02dx%02d+100+100' % (600 + self.size[0], 300 + self.size[1]/4)
+        resize = '%02dx%02d+100+100' % (400 + self.size[0], 100 + self.size[1])
         print(resize)
         root.geometry(resize)
         self.c.config(width=self.size[0], height=self.size[1])
@@ -692,10 +818,11 @@ class main:
 
     def drawWidgets(self):
 
-        #self.master.resizable(width=False, height=False)
+        self.master.resizable(width=False, height=False)
         self.master.minsize(width=600, height=300)
         self.master.configure(background='#102027')
         self.toolbar = Frame(self.master,relief='groove',bg='#37474f',pady=4)
+        self.footer = Frame(self.master,relief='groove',bg='#37474f',pady=4)
 
         styleAbas = ttk.Style()
         styleAbas.configure("C.TNotebook", foreground="#37474f", background='#102027')
@@ -709,13 +836,26 @@ class main:
         style.configure("BW.Horizontal.TScale", foreground="black", background="#102027")
         self.slider = ttk.Scale(self.abacontrole,from_= 5, to = 200,command=self.changeW,orient=HORIZONTAL, style="BW.Horizontal.TScale")
         self.slider.set(self.penwidth)
-        self.slider.grid(row=1,column=0, columnspan=2, sticky=W+E)
+        self.slider.grid(row=1,column=0, columnspan=3, sticky=W+E)
         self.submitDraw = Button(self.abacontrole, text="Aplicar Filtro",command=self.inversaFourier,bg='#62727b',fg='#000000',state="disabled")
-        self.submitDraw.grid(row=2,column=0, columnspan=2, sticky=W+E)
+        self.submitDraw.grid(row=2,column=0, columnspan=3, sticky=W+E)
         desfaz = Button(self.toolbar, text="<<",command=lambda:self.undo(0),bg='#62727b',fg='#ffffff')
         desfaz.grid(row=0,column=0)
+        img = ImageTk.PhotoImage(Image.open('Fs.png').resize((20,20)))
+        #photo = PhotoImage(file="lapis.gif")
+        imglbl = Label(self.footer, image=img, padx=4)
+        imglbl.image = img # keep a reference!
+        imglbl.grid(row=0,column=0,sticky=W+E)
+        marklbl = Label(self.footer, text="Fotossíntese®", bg='#37474f',fg='#FFFFFF')
+        marklbl.grid(row=0,column=1,sticky=W+E)
+        infolbl = Label(self.footer, text="Ícaro de Lima | Thalisson Felipe", bg='#37474f',fg='#FFFFFF')
+        infolbl.grid(row=0,column=2, columnspan=2,sticky=W+E)
+        ufclbl = Label(self.footer, text="UFC", bg='#37474f',fg='#FFFFFF')
+        ufclbl.grid(row=0,column=5,sticky=W+E)
         self.toolbar.pack(side=TOP,expand=False, fill='x')
-        self.controls.pack(side=LEFT, expand=False)
+        self.footer.pack(side=BOTTOM,expand=False, fill='x')
+        self.controls.pack(side=LEFT, expand=False, fill=X)
+        
 
         
 
@@ -775,6 +915,11 @@ class main:
         loadButton.grid(row=0,column=1,sticky=W+E)
         #photo = PhotoImage(file="lapis.gif")
         #loadButton.config(image=photo, compound=LEFT)
+        #pincelimg = ImageTk.PhotoImage(Image.open('icone-lapis.png').resize((40,40)))
+        #photo = PhotoImage(file="lapis.gif")  
+        #pincelButton = Button(self.toolbar, image = pincelimg,bg='#98ee99',fg='#000000')
+        #pincelButton.image = pincelimg
+        #pincelButton.grid(row=0,column=2,sticky=W+E)
         #print(os.getcwd())
         #print(os.listdir())
         self.c = Canvas(self.master,width=self.size[0],height=self.size[1],bg=self.color_bg, cursor='circle')
@@ -796,6 +941,7 @@ class main:
         filemenu = Menu(menu)
         colormenu = Menu(menu)
         effectmenu = Menu(menu)
+        filtermenu = Menu(menu)
         optionmenu = Menu(menu)
         menu.add_cascade(label='Cores',menu=colormenu)
         colormenu.add_command(label='Cor do Pincel',command=self.change_fg)
@@ -804,14 +950,19 @@ class main:
         effectmenu.add_command(label='Aplicar Negativo',command=self.efeito_neg)
         effectmenu.add_command(label='Aplicar Eq. Histograma',command=self.efeito_hist)
         effectmenu.add_command(label='Aplicar Função',command=self.drawfunc)
+        effectmenu.add_command(label='Chroma Key',command=self.efeito_chromakey)
+        effectmenu.add_command(label='Aumentar Brilho',command=self.efeito_aumentarbrilho)
         effectmenu.add_command(label='Histograma',command=self.histograma)
         effectmenu.add_command(label='Trans. Fourier',command=self.fourier)
         effectmenu.add_separator()
-        effectmenu.add_command(label='Filtro Média',command=self.efeito_meanfilter)
-        effectmenu.add_command(label='Filtro Passa Baixa',command=lambda:self.passa_baixa(100))
-        effectmenu.add_command(label='Filtro Passa Alta',command=lambda:self.passa_alta(100))
-        effectmenu.add_command(label='Filtro Passa Faixa',command=lambda:self.passa_faixa(100,400))
-        effectmenu.add_command(label='Filtro Laplaciano',command=self.efeito_laplacefilter)
+        menu.add_cascade(label='Filtros',menu=filtermenu)
+        filtermenu.add_command(label='Filtro Média',command=self.efeito_meanfilter)
+        filtermenu.add_command(label='Filtro Gaussiano',command=self.gaussianfilter)
+        filtermenu.add_command(label='Filtro Passa Baixa',command=lambda:self.passa_baixa(100))
+        filtermenu.add_command(label='Filtro Passa Alta',command=lambda:self.passa_alta(100))
+        filtermenu.add_command(label='Filtro Passa Faixa',command=lambda:self.passa_faixa(100,400))
+        filtermenu.add_command(label='Inversa Gaussiana',command=self.inversaGaussFourier)
+        filtermenu.add_command(label='Filtro Laplaciano',command=self.efeito_laplacefilter)
         menu.add_cascade(label='Opções',menu=optionmenu)
         optionmenu.add_command(label='Salvar Canvas',command=self.save)
         optionmenu.add_command(label='Limpar Canvas',command=self.clear)

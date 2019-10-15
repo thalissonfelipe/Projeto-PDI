@@ -3,7 +3,7 @@ import util
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
-from colors import rgb2gray, rgb2hsv, hsv2rgb
+from colors import rgb2gray, rgb2hsv, hsv2rgb, imghsv2rgb, imgrgb2hsv
 plt.rcParams['figure.figsize'] = (15, 15)
 
 
@@ -50,6 +50,14 @@ def histogram(image, bins=256):
 
         return (r, g, b)
 
+def histogram_hsv(image):
+    # RGB Image
+    v = np.zeros(101)
+    for row in range(image.shape[0]):
+        for col in range(image.shape[1]):
+            i = image[row,col,2]
+            v[i] += 1
+    return v
 
 # É pra ficar assim
 def equalize_hist2(image):
@@ -63,7 +71,7 @@ def equalize_hist2(image):
     return img
 
 
-def equalize_hist(image):
+def equalize_hist(image, hist):
     if len(image.shape) == 2:  # Grayscale Image
         hist = histogram(image)
         cdf = util.cumulative_distribution(hist)
@@ -77,30 +85,17 @@ def equalize_hist(image):
 
         return output.astype(np.uint8)
     else:  # RGB Image
-        height, width = image.shape[:2]
-        # Converting rgb to hsv
-        hsv_image = np.zeros_like(image)
-        for row in range(height):
-            for col in range(width):
-                h, s, v = rgb2hsv(image[row,col][0], image[row,col][1],
-                                                     image[row,col][2])
-                hsv_image[row,col][0] = h
-                hsv_image[row,col][1] = s
-                hsv_image[row,col][2] = v
-
-        # Tua parte entra aqui
-
-
-        # Converting hsv to rgb
-        rgb_image = np.zeros_like(image)
-        for row in range(height):
-            for col in range(width):
-                r, g, b = hsv2rgb(hsv_image[row,col][0], 
-                                  hsv_image[row,col][1],
-                                  hsv_image[row,col][2])
-                rgb_image[row,col][0] = r
-                rgb_image[row,col][1] = g
-                rgb_image[row,col][2] = b
+        imghsv = image
+        print("IMAGEM \n",imghsv)
+        #h,s,v = util.split(imghsv)
+        v = imghsv[:,:,2]
+        print("VALUE \n",v.shape)
+        eq_value = util.cumulative_distribution_hsv(hist)
+        new_v = eq_value[v]
+        print("VALUE \n",v.shape)
+        imghsv[:,:,2] = new_v
+        print("IMAGEM \n",v)
+        rgb_image = imghsv2rgb(imghsv)
 
         return rgb_image
 

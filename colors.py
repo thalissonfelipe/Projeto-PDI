@@ -89,15 +89,54 @@ def imgrgb2hsv(img):
             img[i,j,0], img[i,j,1], img[i,j,2] = h, s, v
     return img
 
-def chroma_key(img, imgfundo, cr,cg,cb, faixa):
+def imghsv2rgb(img):
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            h, s, v = img[i,j,0], img[i,j,1], img[i,j,2]
+            r, g, b = hsv2rgb(h,s/100,v/100)
+            img[i,j,0], img[i,j,1], img[i,j,2] = r, g, b
+    return img
+
+def imgrgb2hsv_boost(img, boost):
     for i in range(img.shape[0]):
         for j in range(img.shape[1]):
             r, g, b = img[i,j,0], img[i,j,1], img[i,j,2]
-            if r == cr and g == cg and b == cb:
-                img[i,j,0] = imgfundo[i,j,0] 
-                img[i,j,1] = imgfundo[i,j,1]
-                img[i,j,2] = imgfundo[i,j,2]
+            h, s, v = rgb2hsv(r,g,b)
+            img[i,j,0], img[i,j,1], img[i,j,2] = h, s, (v*boost)
+            if img[i,j,2] > 100:
+                img[i,j,2] = 100
     return img
+
+def dist(x0, y0, x1, y1):
+    a = (x1 - x0)**2 + (y1 - y0)**2
+    b = math.sqrt(a)
+    return b
+
+def chroma_key(img, imgfundo, cr,cg,cb, faixa):
+    print("Frente:\n",img.shape)
+    print("Trás:\n",imgfundo.shape)
+    print("RGB:",cr,cg,cb)
+    imgfinal = img
+    for i in range(imgfinal.shape[0]):
+        for j in range(imgfinal.shape[1]):
+            r, g, b = imgfinal[i,j,0], imgfinal[i,j,1], imgfinal[i,j,2]
+            distr = dist(0,0,r,cr)
+            distg = dist(0,0,r,cr)
+            distb = dist(0,0,r,cr)
+            if (r == cr and g == cg and b == cb) or (distr < faixa and distg < faixa and distb < faixa):
+                #print("ACHOU!")
+                imgfinal[i,j,0] = imgfundo[i,j,0] 
+                imgfinal[i,j,1] = imgfundo[i,j,1]
+                imgfinal[i,j,2] = imgfundo[i,j,2]
+    print(imgfinal.shape)    
+    return imgfinal
+
+def aumentarbrilho(img, amount):
+    boost = amount/100
+    print("Imagem RGB:\n",img.shape)
+    imghsv = imgrgb2hsv_boost(img, boost)
+    imgrgb = imghsv2rgb(imghsv)  
+    return imgrgb
 
 if __name__ == '__main__':
     img = Image.open('images/face_rgb.jpeg')
