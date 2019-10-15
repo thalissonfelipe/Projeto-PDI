@@ -37,7 +37,7 @@ def histogram(image, bins=256):
         flat = flat.flatten()
 
         for pxl in flat:
-            hist[pxl] += 1
+            hist[int(round(pxl,5))] += 1
 
         return hist
     else:  # RGB Image
@@ -67,11 +67,15 @@ def equalize_hist(image):
     if len(image.shape) == 2:  # Grayscale Image
         hist = histogram(image)
         cdf = util.cumulative_distribution(hist)
-        flat = (np.asarray(image)).flatten()
+        img = (np.asarray(image)).flatten()
+        flat = np.zeros_like(img, dtype=np.uint8)
+        for i in range(len(flat)):
+            flat[i] = int(round(img[i],5))
         output = cdf[flat]
         output = np.reshape(output, image.shape)
+        output[np.where(output > MAX_PIXEL)] = MAX_PIXEL
 
-        return output
+        return output.astype(np.uint8)
     else:  # RGB Image
         height, width = image.shape[:2]
         # Converting rgb to hsv
@@ -134,14 +138,15 @@ def mean_filter(image, filter_size):
         return output.astype(np.uint8)
 
 
-# TODO
 # c = 1: unsharp masking
 # c > 1: highboost filtering
 # c < 1: attenuates the contribution of the sharpness
 def highboost(image, c, filter_size):
     blurred = mean_filter(image, filter_size)
-    output = (c+1)*image - c*blurred
+    mask = image - blurred
+    output = image + c * mask
 
+    output[np.where(output > MAX_PIXEL)] = MAX_PIXEL
     return output.astype(np.uint8)
 
 
@@ -196,7 +201,7 @@ def sharpen_filter(image):
     lap = laplacian_filter(image)
     output = image + lap
     output[np.where(output > MAX_PIXEL)] = MAX_PIXEL
-    #output = (output * MAX_PIXEL) / output.max()
+
     return output.astype(np.uint8)
 
 
@@ -356,7 +361,9 @@ def sepia_filter(image):
 
 
 if __name__ == '__main__':
-    i = imageio.imread('images/lung.jpeg')
-    i = rgb2gray(i)
-    it = equalize_hist(i)
+    i = imageio.imread('images/dipxe.jpeg')
+    #i = rgb2gray(i)
+    #it = equalize_hist(i)
+    #it = sharpen_filter(i)]
+    it = highboost(i, -3, 5)
     util.subplot_img(i, it)

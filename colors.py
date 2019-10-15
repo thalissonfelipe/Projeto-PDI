@@ -16,7 +16,7 @@ def rgb2gray(image):
     if len(image.shape) == 2:  # Check if image is already grayscale
         return image
     else:
-        return np.uint8(np.dot(image[..., :3], [0.298936, 0.587043, 0.114021]))
+        return np.dot(image[..., :3], [0.298936, 0.587043, 0.114021])
 
 
 # Convert RGB image to grayscale using arithmetic average
