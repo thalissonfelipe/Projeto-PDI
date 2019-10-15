@@ -16,6 +16,7 @@ Implementação de um Photoshop para a cadeira de Processamento Digital de Image
 - Negativo
 - Logarítmico
 - Correção de gamma
+- Picewise
 - Equalização de histograma
 - Média aritmética
 - Média geométrica
@@ -27,11 +28,29 @@ Implementação de um Photoshop para a cadeira de Processamento Digital de Image
 - Laplaciano
 - Sobel
 - Sepia
+- Chroma-Key
 - Sharpen
 - Highboost
+- Passa alta
+- Passa baixa
+- Passa faixa
 
 ### Conversões implementadas
 
 - RGB - > grayscale utilizando média ponderada
 - RGB - > grayscale utilizando média simples
-- RGB < - > HSV 
+- RGB < - > HSV
+
+### Transformações espaciais
+
+- Interpolação pelo vizinho mais próximo (nearest neighbor)
+	- Escala (Grayscale Image)
+	
+- Interpolação bilinear
+	- Escala (RGB e Grayscale Image)
+	- Rotação (RGB e Grayscale Image)
+
+### Outros
+
+- Histograma
+- Espectro de Fourier
