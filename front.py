@@ -2,6 +2,8 @@ import imageio
 import back as bk
 import colors as cl
 import fourier as fr
+import space_transformations as st
+import steganography as steg
 from tkinter import *
 from tkinter import ttk, colorchooser
 from PIL import ImageTk, Image, ImageDraw
@@ -402,7 +404,208 @@ class main:
         #self.c.tag_bind(quad, "<B1-Motion>", lambda x: setColor("red"))
         #quad = self.c.create_rectangle((self.img.width - 10, 0, self.img.width, 10), fill="white")
         #self.c.tag_bind(quad, "<B1-Motion>", lambda x: setColor("red"))
+    
 
+    ##steganography
+    def trans_steganography(self):
+        tabs = self.controls.tabs()
+        for t in tabs:
+            self.controls.hide(t)
+
+        abae = Frame(self.controls,bg='#102027')
+        self.controls.add(abae, text='Codificação')
+        self.title = Label(abae, text="Codificar mensagem", bg='#102027', fg='#FFFFFF',font="roboto 12")
+        self.title.grid(row=0,column=0,columnspan=3, sticky=W+E)
+        self.text = Label(abae, text="Mensagem: ", bg='#102027', fg='#FFFFFF')
+        self.msg = Entry(abae)
+        self.text2 = Label(abae, text="Arquivo (sem extensão):", bg='#102027', fg='#FFFFFF')
+        #style.configure("BW.Horizontal.TScale", foreground="black", background="#102027",padx=2)
+        self.arq = Entry(abae)
+        self.submit = Button(abae, text="Codificar",command=self.steganographyEncode, bg='#98ee99')
+        #self.data.grid(row=0,column=0)
+        self.text.grid(row=1,column=0, columnspan=3,sticky=W+E)
+        self.msg.grid(row=2, column=0, columnspan=3)
+        self.text2.grid(row=3,column=0, columnspan=3,sticky=W+E)
+        self.arq.grid(row=4,column=0, columnspan=3,sticky=W+E)
+        self.submit.grid(row=5,column=0, columnspan=3,sticky=W+E)
+
+        abad = Frame(self.controls,bg='#102027')
+        self.controls.add(abad, text='Decodificação')
+        self.title2 = Label(abad, text="Decodificar mensagem", bg='#102027', fg='#FFFFFF',font="roboto 12")
+        self.title2.grid(row=0,column=0,columnspan=3, sticky=W+E)
+        self.text2 = Label(abad, text="Mensagem: ", bg='#102027', fg='#FFFFFF')
+        self.msgdecode = Label(abad, text="", bg='#FAFAFA', fg='#FF38E0')
+        self.submit2 = Button(abad, text="Decodificar",command=self.steganographyDecode, bg='#98ee99')
+        #self.data.grid(row=0,column=0)
+        self.text2.grid(row=1,column=0, columnspan=3,sticky=W+E)
+        self.msgdecode.grid(row=2, column=0, columnspan=3)
+        self.submit2.grid(row=3,column=0, columnspan=3,sticky=W+E)
+
+        self.controls.add(abae)
+        self.controls.add(abad)
+        abae.focus()
+
+    def steganographyEncode(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        img = np.array(self.img)
+        img = Image.fromarray(img,'RGB')
+        print(img)
+        #i = colors.rgb2gray(i)
+        m = self.msg.get()
+        a = self.arq.get()
+        print(m,a)
+        steg.encode(img, m, a)
+        file = "output/"+a+".bmp"
+        it = Image.open(file)
+        print(it)
+        self.img = it
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.config(width=self.img.width, height=self.img.height)
+        self.c.create_image(self.img.width/2, self.img.height/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+        self.sizelbl['text'] = "Tamanho da imagem: %02dx%02d" %(self.img.width,self.img.height)
+        resize = '%02dx%02d+100+100' % (400 + self.img.width, 100 + self.img.height)
+        root.geometry(resize)
+
+    def steganographyDecode(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = self.img
+        img = np.array(self.img)
+        img = Image.fromarray(img,'RGB')
+        #i = colors.rgb2gray(i)
+
+        m = steg.decode(img)
+        print(m)
+        self.msgdecode['text'] = m
+
+
+    ##TRANSFORMAÇÕES
+    def trans_rotacaobilinear(self):
+        tabs = self.controls.tabs()
+        for t in tabs:
+            self.controls.hide(t)
+
+        aba = Frame(self.controls,bg='#102027')
+        self.controls.add(aba, text='Ajustes da transformação')
+        self.title = Label(aba, text="Rotação Bilinear", bg='#102027', fg='#FFFFFF',font="roboto 12")
+        self.title.grid(row=0,column=0,columnspan=3, sticky=W+E)
+        self.textslider = Label(aba, text="Ângulo (°): ", bg='#102027', fg='#FFFFFF')
+        #style.configure("BW.Horizontal.TScale", foreground="black", background="#102027",padx=2)
+        self.slider = Scale(aba,from_= 0, to = 360, width=10, length=180,orient=HORIZONTAL, bg='#102027',highlightbackground='#102027',highlightcolor='#102027', fg="#98ee99",troughcolor="#FFFFFF")
+        self.slider.set(100)
+        self.submit = Button(aba, text="Aplicar",command=self.rotacaobilinear, bg='#98ee99')
+        #self.data.grid(row=0,column=0)
+        self.textslider.grid(row=1,column=0, columnspan=3,sticky=W+E)
+        self.slider.grid(row=2,column=0, columnspan=3,sticky=W+E)
+        self.submit.grid(row=3,column=0, columnspan=3, sticky=W+E)
+        self.controls.add(aba)
+        aba.focus()
+
+    def rotacaobilinear(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = np.array(self.img)
+        print("Imagem: ",img)
+        #i = colors.rgb2gray(i)
+        angle = int(self.slider.get())
+        it = st.bilinearRotate(img, angle)
+        print(it)
+        self.img = Image.fromarray(it)
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.config(width=self.img.width, height=self.img.height)
+        self.c.create_image(self.img.width/2, self.img.height/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+        self.sizelbl['text'] = "Tamanho da imagem: %02dx%02d" %(self.img.width,self.img.height)
+        resize = '%02dx%02d+100+100' % (400 + self.img.width, 100 + self.img.height)
+        root.geometry(resize)
+
+    def trans_escalaNN(self):
+        tabs = self.controls.tabs()
+        for t in tabs:
+            self.controls.hide(t)
+        aba = Frame(self.controls,bg='#102027')
+        self.controls.add(aba, text='Ajustes da transformação')
+        self.title = Label(aba, text="Escala NN", bg='#102027', fg='#FFFFFF',font="roboto 12")
+        self.title.grid(row=0,column=0,columnspan=3,sticky=W+E)
+        self.text = Label(aba, text="Nova Altura: ", bg='#102027', fg='#FFFFFF')
+        self.altura = Entry(aba)
+        self.text2 = Label(aba, text="Nova Largura", bg='#102027', fg='#FFFFFF')
+        #style.configure("BW.Horizontal.TScale", foreground="black", background="#102027",padx=2)
+        self.largura = Entry(aba)
+        self.submit = Button(aba, text="Aplicar",command=self.escalaNN, bg='#98ee99')
+        #self.data.grid(row=0,column=0)
+        self.text.grid(row=1,column=0, columnspan=3,sticky=W+E)
+        self.altura.grid(row=2, column=0, columnspan=3)
+        self.text2.grid(row=3,column=0, columnspan=3,sticky=W+E)
+        self.largura.grid(row=4,column=0, columnspan=3,sticky=W+E)
+        self.submit.grid(row=5,column=0, columnspan=3,sticky=W+E)
+        self.controls.add(aba)
+        aba.focus()
+
+    def escalaNN(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = np.array(self.img)
+        #i = colors.rgb2gray(i)
+        altura = int(self.altura.get())
+        largura = int(self.largura.get())
+        if len(img.shape) != 2:
+            messagebox.showerror("ERRO!","A imagem tem que ser Grayscale!")
+        it = st.nnscale(img,altura,largura)
+        self.img = Image.fromarray(it)
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.config(width=self.img.width, height=self.img.height)
+        self.c.create_image(self.img.width/2, self.img.height/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+        self.sizelbl['text'] = "Tamanho da imagem: %02dx%02d" %(self.img.width,self.img.height)
+        resize = '%02dx%02d+100+100' % (400 + self.img.width, 100 + self.img.height)
+        root.geometry(resize)
+
+    def trans_escalaBilinear(self):
+        tabs = self.controls.tabs()
+        for t in tabs:
+            self.controls.hide(t)
+        aba = Frame(self.controls,bg='#102027')
+        self.controls.add(aba, text='Ajustes da transformação')
+        self.title = Label(aba, text="Escala Bilinear", bg='#102027', fg='#FFFFFF',font="roboto 12")
+        self.title.grid(row=0,column=0,columnspan=3,sticky=W+E)
+        self.text = Label(aba, text="Nova Altura: ", bg='#102027', fg='#FFFFFF')
+        self.altura = Entry(aba)
+        self.text2 = Label(aba, text="Nova Largura", bg='#102027', fg='#FFFFFF')
+        #style.configure("BW.Horizontal.TScale", foreground="black", background="#102027",padx=2)
+        self.largura = Entry(aba)
+        self.submit = Button(aba, text="Aplicar",command=self.escalaBilinear, bg='#98ee99')
+        #self.data.grid(row=0,column=0)
+        self.text.grid(row=1,column=0, columnspan=3,sticky=W+E)
+        self.altura.grid(row=2, column=0, columnspan=3)
+        self.text2.grid(row=3,column=0, columnspan=3,sticky=W+E)
+        self.largura.grid(row=4,column=0, columnspan=3,sticky=W+E)
+        self.submit.grid(row=5,column=0, columnspan=3,sticky=W+E)
+        self.controls.add(aba)
+        aba.focus()
+
+    def escalaBilinear(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = np.array(self.img)
+        #i = colors.rgb2gray(i)
+        altura = int(self.altura.get())
+        largura = int(self.largura.get())
+        it = st.bilinearScale(img,altura,largura)
+        self.img = Image.fromarray(it)
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.config(width=self.img.width, height=self.img.height)
+        self.c.create_image(self.img.width/2, self.img.height/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+        self.sizelbl['text'] = "Tamanho da imagem: %02dx%02d" %(self.img.width,self.img.height)
+        resize = '%02dx%02d+100+100' % (400 + self.img.width, 100 + self.img.height)
+        root.geometry(resize)
 
     ## EFEITOS DIRETOS
 
@@ -501,6 +704,34 @@ class main:
         i = np.array(img)
         #i = colors.rgb2gray(i)
         it = bk.sepia_filter(i)
+        self.img = Image.fromarray(it) 
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+
+    def efeito_BW(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = self.img
+        self.old_img = img
+        i = np.array(img)
+        #i = colors.rgb2gray(i)
+        it = cl.rgb2gray(i)
+        self.img = Image.fromarray(it) 
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+
+    def efeito_BW_avg(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = self.img
+        self.old_img = img
+        i = np.array(img)
+        #i = colors.rgb2gray(i)
+        it = cl.imgrgb2gray(i)
         self.img = Image.fromarray(it) 
         self.c.image = ImageTk.PhotoImage(self.img)
         self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
@@ -1623,15 +1854,26 @@ class main:
         colormenu = Menu(menu)
         effectmenu = Menu(menu)
         filtermenu = Menu(menu)
+        imagemenu = Menu(menu)
         optionmenu = Menu(menu)
         menu.add_cascade(label='Cores',menu=colormenu)
         colormenu.add_command(label='Cor do Pincel',command=self.change_fg)
         colormenu.add_command(label='Cor do BG',command=self.change_bg)
+        menu.add_cascade(label='Imagem',menu=imagemenu)
+        imagemenu.add_command(label='Escala NN',command=self.trans_escalaNN)
+        imagemenu.add_command(label='Escala Bilinear',command=self.trans_escalaBilinear)
+        imagemenu.add_separator()
+        imagemenu.add_command(label='Rotação NN',command=self.trans_rotacaobilinear)
+        imagemenu.add_command(label='Rotação Bilinear',command=self.trans_rotacaobilinear)
+        imagemenu.add_separator()
+        imagemenu.add_command(label='Esteganografia',command=self.trans_steganography)
         menu.add_cascade(label='Efeitos',menu=effectmenu)
         effectmenu.add_command(label='Aplicar Negativo',command=self.efeito_neg)
         effectmenu.add_command(label='Aplicar Logaritmo',command=self.efeito_log)
         effectmenu.add_command(label='Aplicar Gamma',command=self.efeito_gamma)
         effectmenu.add_command(label='Aplicar Sépia',command=self.efeito_sepia)
+        effectmenu.add_command(label='Aplicar Preto/Branco',command=self.efeito_BW)
+        effectmenu.add_command(label='Aplicar Preto/Branco média',command=self.efeito_BW_avg)
         effectmenu.add_command(label='Aplicar Threshold',command=self.efeito_threshold)
         effectmenu.add_command(label='Aplicar Eq. Histograma',command=self.efeito_hist)
         effectmenu.add_command(label='Aplicar Função',command=self.drawfunc)

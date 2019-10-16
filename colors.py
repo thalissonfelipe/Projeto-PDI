@@ -19,6 +19,14 @@ def rgb2gray(image):
         return np.dot(image[..., :3], [0.298936, 0.587043, 0.114021])
 
 
+def imgrgb2gray(img):
+    bwimg = np.zeros((img.shape[0],img.shape[1]))
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            r, g, b = img[i,j,0], img[i,j,1], img[i,j,2]
+            bwimg[i,j] = rgb2gray_avg(r,g,b)
+    return bwimg
+
 # Convert RGB image to grayscale using arithmetic average
 def rgb2gray_avg(r, g, b):
     return (r + g + b) / 3
