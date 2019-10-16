@@ -118,6 +118,17 @@ def conv(image, kernel):
 
     return output.astype(np.uint8)
 
+def conv_filter(image, kernel):
+    if len(image.shape) == 2:
+        return conv(image, kernel)
+    else:
+        r, g, b = util.split(image)
+        R = conv(r, kernel)
+        G = conv(g, kernel)
+        B = conv(b, kernel)
+        output = util.merge(R, G, B)
+
+        return output.astype(np.uint8)
 
 def mean_filter(image, filter_size):
     kernel = np.ones((filter_size, filter_size))*(1.0/(filter_size**2))
@@ -353,6 +364,36 @@ def sepia_filter(image):
     output = np.reshape(output, image.shape)
 
     return output.astype(np.uint8)
+
+def thresholding(image, threshold, flag=1):
+    image = rgb2gray(image)
+    height, width = image.shape
+    output = np.zeros_like(image, dtype=np.uint8)
+
+    # 0 or 255
+    if flag == 1:
+        for row in range(height):
+            for col in range(width):
+                if image[row, col] > threshold:
+                    output[row, col] = 255
+                else:
+                    output[row, col] = 0
+
+    # change pixels > threshold
+    elif flag == 2:
+        for row in range(height):
+            for col in range(width):
+                if image[row, col] > threshold:
+                    output[row, col] = 255
+
+    # pixels between 0 and threshold
+    elif flag == 3:
+        for row in range(height):
+            for col in range(width):
+                if image[row, col] > threshold:
+                    output[row, col] = threshold
+
+    return output
 
 
 if __name__ == '__main__':

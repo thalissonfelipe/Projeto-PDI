@@ -97,7 +97,21 @@ def imghsv2rgb(img):
             img[i,j,0], img[i,j,1], img[i,j,2] = r, g, b
     return img
 
-def imgrgb2hsv_boost(img, boost):
+def imgrgb2hsv_boostHSV(img, boosth, boosts, boostv):
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            r, g, b = img[i,j,0], img[i,j,1], img[i,j,2]
+            h, s, v = rgb2hsv(r,g,b)
+            img[i,j,0], img[i,j,1], img[i,j,2] = (h*boosth), (s*boosts), (v*boostv)
+            if img[i,j,0] > 360:
+                img[i,j,0] = 360
+            if img[i,j,1] > 100:
+                img[i,j,1] = 100
+            if img[i,j,2] > 100:
+                img[i,j,2] = 100
+    return img
+
+def imgrgb2hsv_boostVal(img, boost):
     for i in range(img.shape[0]):
         for j in range(img.shape[1]):
             r, g, b = img[i,j,0], img[i,j,1], img[i,j,2]
@@ -107,7 +121,7 @@ def imgrgb2hsv_boost(img, boost):
                 img[i,j,2] = 100
     return img
 
-def dist(x0, y0, x1, y1):
+def dist(x0, x1, y0, y1):
     a = (x1 - x0)**2 + (y1 - y0)**2
     b = math.sqrt(a)
     return b
@@ -116,38 +130,47 @@ def chroma_key(img, imgfundo, cr,cg,cb, faixa):
     print("Frente:\n",img.shape)
     print("Trás:\n",imgfundo.shape)
     print("RGB:",cr,cg,cb)
-    imgfinal = img
-    for i in range(imgfinal.shape[0]):
-        for j in range(imgfinal.shape[1]):
-            r, g, b = imgfinal[i,j,0], imgfinal[i,j,1], imgfinal[i,j,2]
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            r, g, b = img[i,j,0], img[i,j,1], img[i,j,2]
             distr = dist(0,0,r,cr)
-            distg = dist(0,0,r,cr)
-            distb = dist(0,0,r,cr)
-            if (r == cr and g == cg and b == cb) or (distr < faixa and distg < faixa and distb < faixa):
+            distg = dist(0,0,g,cg)
+            distb = dist(0,0,b,cb)
+            if(i > imgfundo.shape[0]-1 or j > imgfundo.shape[1]-1):
+                return img
+            if (r == cr and g == cg and b == cb) or (distr <= faixa and distg <= faixa and distb <= faixa):
                 #print("ACHOU!")
-                imgfinal[i,j,0] = imgfundo[i,j,0] 
-                imgfinal[i,j,1] = imgfundo[i,j,1]
-                imgfinal[i,j,2] = imgfundo[i,j,2]
-    print(imgfinal.shape)    
-    return imgfinal
+                img[i,j,0] = imgfundo[i,j,0] 
+                img[i,j,1] = imgfundo[i,j,1]
+                img[i,j,2] = imgfundo[i,j,2]
+    return img
 
 def aumentarbrilho(img, amount):
     boost = amount/100
     print("Imagem RGB:\n",img.shape)
-    imghsv = imgrgb2hsv_boost(img, boost)
+    imghsv = imgrgb2hsv_boostVal(img, boost)
+    imgrgb = imghsv2rgb(imghsv)  
+    return imgrgb
+
+def HueSatVal_adjust(img, amounth, amounts, amountv):
+    boosth = amounth/100
+    boosts = amounts/100
+    boostv = amountv/100
+    print("Imagem RGB:\n",img.shape)
+    imghsv = imgrgb2hsv_boostHSV(img, boosth,boosts,boostv)
     imgrgb = imghsv2rgb(imghsv)  
     return imgrgb
 
 if __name__ == '__main__':
-    img = Image.open('images/face_rgb.jpeg')
-    cor = np.array(img)
-    print("imagem frente: ",cor)
-    img = Image.open('images/forest.jpeg')
-    cornova = np.array(img)
-    print("imagem trás: ",cornova)
-
-    i = chroma_key(cor, cornova, 112, 69, 53, 0)
-    print("IMAGEM NOVA: ",i)
+    #img = Image.open('images/face_rgb.jpeg')
+    #cor = np.array(img)
+    #print("imagem frente: ",cor)
+    #img = Image.open('images/forest.jpeg')
+    #cornova = np.array(img)
+    #print("imagem trás: ",cornova)
+    print(dist(0,0,0,255))
+    #i = chroma_key(cor, cornova, 112, 69, 53, 0)
+    #print("IMAGEM NOVA: ",i)
     #print(rgb2hsv(255, 0, 0))  # red
     #print(rgb2hsv(0, 255, 0))  # green
     #print(hsv2rgb(240, 1, 1))  # blue

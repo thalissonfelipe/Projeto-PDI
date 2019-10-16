@@ -74,6 +74,12 @@ class main:
         # donuts contains 1's and 0's organized in a donut shape
         # you apply 2 thresholds on circle to define the shape
         #mc = np.logical_and(1, circle < (r*100))
+        #print(mc)
+        for k in range(self.mcanvas.shape[0]):
+            for l in range(self.mcanvas.shape[1]):
+                if circle[k,l] < (r*100):
+                    self.mcanvas[k,l] = cl.rgb2gray_avg(self.old_red,self.old_green,self.old_blue)/255
+        print(self.mcanvas)
         #self.mcanvas = np.logical_and(mc, self.mcanvas)
         #print(self.mcanvas)
         #print(self.mcanvas.shape)
@@ -102,7 +108,7 @@ class main:
         self.input = Image.new("RGB", (self.size), white)
         filename = "canvas.jpg"
         self.input.save(filename)
-        self.mcanvas = np.zeros(self.size, dtype=int)
+        self.mcanvas = np.ones(self.size)
         print(self.mcanvas)
         print(self.mcanvas.shape)
 
@@ -128,6 +134,7 @@ class main:
         e = int(round(float(e)))
         cor = '#%02x%02x%02x' % (e, self.old_green, self.old_blue)
         self.colordisplay.itemconfig(self.cordisp, fill=cor)
+        self.color_fg = cor
         self.old_red = e
         (h,s,v) = cl.rgb2hsv(e, self.old_green, self.old_blue)
         print(h,s,v)
@@ -143,6 +150,7 @@ class main:
         e = int(round(float(e)))
         cor = '#%02x%02x%02x' % (self.old_red, e, self.old_blue)
         self.colordisplay.itemconfig(self.cordisp, fill=cor)
+        self.color_fg = cor
         self.old_green = e
         (h,s,v) = cl.rgb2hsv(self.old_red, e, self.old_blue)
         print(h,s,v)
@@ -157,6 +165,7 @@ class main:
         e = int(round(float(e)))
         cor = '#%02x%02x%02x' % (self.old_red, self.old_green, e)
         self.colordisplay.itemconfig(self.cordisp, fill=cor)
+        self.color_fg = cor
         self.old_blue = e
         (h,s,v) = cl.rgb2hsv(self.old_red, self.old_green, e)
         print(h,s,v)
@@ -171,6 +180,7 @@ class main:
         e = int(round(float(e)))
         rgb = cl.hsv2rgb(e, self.old_sat/100, self.old_val/100)
         cor = '#%02x%02x%02x' % (rgb[0], rgb[1], rgb[2])
+        self.color_fg = cor
         self.colordisplay.itemconfig(self.cordisp, fill=cor)
         self.old_hue = e
         self.sliderR.set(rgb[0])
@@ -185,6 +195,7 @@ class main:
         e = int(round(float(e)))
         rgb = cl.hsv2rgb(self.old_hue, e/100, self.old_val/100)
         cor = '#%02x%02x%02x' % (rgb[0], rgb[1], rgb[2])
+        self.color_fg = cor
         self.colordisplay.itemconfig(self.cordisp, fill=cor)
         self.old_sat = e
         self.sliderR.set(rgb[0])
@@ -198,6 +209,7 @@ class main:
         e = int(round(float(e)))
         rgb = cl.hsv2rgb(self.old_hue, self.old_sat/100, e/100)
         cor = '#%02x%02x%02x' % (rgb[0], rgb[1], rgb[2])
+        self.color_fg = cor
         self.colordisplay.itemconfig(self.cordisp, fill=cor)
         self.old_val = e
         self.sliderR.set(rgb[0])
@@ -325,9 +337,11 @@ class main:
         self.func.title('Função')
         self.func.bind('<B1-Motion>',self.changeCoord)
         self.func.configure(background='#102027')
-        #self.func.resizable(width=False, height=False)
+        self.func.resizable(width=False, height=False)
+        titlelbl = Label(self.func,text="Desenhe a Função",bg='#102027',fg='#ffffff',font=('roboto 18'))
+        titlelbl.grid(row=0, column=1, columnspan=10,sticky=N+S+W+E)
         self.func.c = Canvas(self.func,width=255,height=255,bg=self.color_bg, cursor='circle')
-        self.func.c.grid(row=0, column=1, rowspan=10,columnspan=10)
+        self.func.c.grid(row=1, column=1, rowspan=10,columnspan=10)
         white = (255, 255, 255)
         height = 255
         width = 255
@@ -358,25 +372,25 @@ class main:
         quad = self.func.c.create_rectangle((x2 - 10, 0, x2, 10), fill="green")
 
         labeltick1 = Label(self.func,text="",bg='#62727b',fg='#ffffff',font=('roboto 10'))
-        labeltick1.grid(row=0, column=0, rowspan=10,sticky=N+S+W+E)
+        labeltick1.grid(row=1, column=0, rowspan=10,sticky=N+S+W+E)
         labeltick1 = Label(self.func,text="250",bg='#62727b',fg='#ffffff',font=('roboto 10'))
-        labeltick1.grid(row=0, column=0, sticky=W+E)
+        labeltick1.grid(row=1, column=0, sticky=W+E)
         labeltick1 = Label(self.func,text="0",bg='#62727b',fg='#ffffff',font=('roboto 10'))
-        labeltick1.grid(row=10, column=0, sticky=W+E)
+        labeltick1.grid(row=11, column=0, sticky=W+E)
 
         labeltick2 = Label(self.func,text="",bg='#62727b',fg='#ffffff',font=('roboto 10'))
-        labeltick2.grid(row=10, column=1, columnspan=10, sticky=W+E)
+        labeltick2.grid(row=11, column=1, columnspan=10, sticky=W+E)
         labeltick2 = Label(self.func,text="250",bg='#62727b',fg='#ffffff',font=('roboto 10'))
-        labeltick2.grid(row=10, column=10, sticky=W+E)
+        labeltick2.grid(row=11, column=10, sticky=W+E)
         #labelticks = Label(self.func,text="0",bg='#62727b',fg='#ffffff',font=('roboto 10'))
         #labelticks.grid(row=10, column=1, sticky=W+E)
         #framebtn = Frame(self.func)
         button = Button(self.func, text="Aplicar",bg='#98ee99',fg='#000000',command=self.applyfunc)
-        button.grid(row=12, column=1, columnspan=5, sticky=W+E)
+        button.grid(row=13, column=0, columnspan=5, sticky=W+E)
         sair = Button(self.func, text="Sair",command=self.func.destroy)
-        sair.grid(row=12, column=9,columnspan=2, sticky=W+E)
+        sair.grid(row=13, column=10,columnspan=2, sticky=W+E)
         cancelar = Button(self.func, text="Cancelar",bg='#FFe0e0',fg='#000000',command=lambda:self.undo(0))
-        cancelar.grid(row=12, column=6,columnspan=3, sticky=W+E)
+        cancelar.grid(row=13, column=7,columnspan=3, sticky=W+E)
 
         #cancelar.pack(side = RIGHT)
         #framebtn.grid(row=2,column=0)
@@ -389,6 +403,9 @@ class main:
         #quad = self.c.create_rectangle((self.img.width - 10, 0, self.img.width, 10), fill="white")
         #self.c.tag_bind(quad, "<B1-Motion>", lambda x: setColor("red"))
 
+
+    ## EFEITOS DIRETOS
+
     def efeito_neg(self):
         #url = 'images/'+self.input.get()
         #url = self.input
@@ -396,6 +413,19 @@ class main:
         img = self.img
         i = np.array(img) 
         it = bk.negative_filter(i) 
+        self.img = Image.fromarray(it)
+        self.old_img = img
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+
+    def efeito_log(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = self.img
+        i = np.array(img) 
+        it = bk.logarithm_filter(i) 
         self.img = Image.fromarray(it)
         self.old_img = img
         self.c.image = ImageTk.PhotoImage(self.img)
@@ -419,6 +449,66 @@ class main:
         self.c.image = ImageTk.PhotoImage(self.img)
         self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
         self.c.pack()
+
+    def efeito_laplacefilter(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = self.img
+        self.old_img = img
+        i = np.array(img)
+        #i = colors.rgb2gray(i)
+        it = bk.laplacian_filter(i)
+        self.img = Image.fromarray(it) 
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+
+    def efeito_sharpen(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = self.img
+        self.old_img = img
+        i = np.array(img)
+        #i = colors.rgb2gray(i)
+        it = bk.sharpen_filter(i)
+        self.img = Image.fromarray(it) 
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+
+    def efeito_sobel(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = self.img
+        self.old_img = img
+        i = np.array(img)
+        #i = colors.rgb2gray(i)
+        it = bk.sobel_filter(i)
+        self.img = Image.fromarray(it) 
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+
+    def efeito_sepia(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = self.img
+        self.old_img = img
+        i = np.array(img)
+        #i = colors.rgb2gray(i)
+        it = bk.sepia_filter(i)
+        self.img = Image.fromarray(it) 
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+
+
+  
+    ## EFEITOS COM CONTROLADORES 
 
     def passa_alta(self, radius):
         xx, yy = np.mgrid[:self.size[0], :self.size[1]]
@@ -508,22 +598,226 @@ class main:
         self.c.pack()
 
 
+    def efeito_highboost(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        tabs = self.controls.tabs()
+        for t in tabs:
+            self.controls.hide(t)
+        aba = Frame(self.controls,bg='#102027')
+        self.controls.add(aba, text='Ajustes do efeito')
+        self.title = Label(aba, text="Efeito Highboost", bg='#102027', fg='#FFFFFF',font="roboto 12")
+        self.title.grid(row=0,column=0,columnspan=3, sticky=W+E)
+        self.text = Label(aba, text="Tamanho do filtro: ", bg='#102027', fg='#FFFFFF')
+        self.spin = Spinbox(aba, values=(3,5,7,9), width=5)
+        self.text2 = Label(aba, text="Quantidade c:", bg='#102027', fg='#FFFFFF')
+        self.slider = Scale(aba,from_= -20, to = 20, width=10, orient=HORIZONTAL, bg='#102027',highlightbackground='#102027',highlightcolor='#102027', fg="#98ee99",troughcolor="#FFFFFF")
+        self.slider.set(1)
+        self.submit = Button(aba, text="Aplicar",bg='#98ee99',command=self.highboost, padx=3)
+        #self.data.grid(row=0,column=0)
+        self.text.grid(row=1,column=0, columnspan=3, sticky=W+E)
+        self.spin.grid(row=2,column=0, columnspan=3, sticky=W+E)
+        self.text2.grid(row=3,column=0, columnspan=3, sticky=W+E)
+        self.slider.grid(row=4,column=0, columnspan=3, sticky=W+E)
+        self.submit.grid(row=5,column=0, columnspan=3, sticky=W+E)
+        self.controls.pack()
+
+    def highboost(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = self.img
+        i = np.array(img)
+        f = int(self.spin.get())
+        c = int(self.slider.get())
+        it = bk.highboost(i,c,f) 
+        self.img = Image.fromarray(it)
+        self.old_img = img
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+
+    def efeito_threshold(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        tabs = self.controls.tabs()
+        for t in tabs:
+            self.controls.hide(t)
+        aba = Frame(self.controls,bg='#102027')
+        self.controls.add(aba, text='Ajustes do efeito')
+        self.title = Label(aba, text="Efeito Threshold", bg='#102027', fg='#FFFFFF',font="roboto 12")
+        self.title.grid(row=0,column=0,columnspan=3, sticky=W+E)
+        self.text = Label(aba, text="Flag: ", bg='#102027', fg='#FFFFFF')
+        self.spin = Spinbox(aba, values=(1,2,3), width=5)
+        self.text2 = Label(aba, text="threshold:", bg='#102027', fg='#FFFFFF')
+        self.slider = Scale(aba,from_= 0, to = 255, width=10, orient=HORIZONTAL, bg='#102027',highlightbackground='#102027',highlightcolor='#102027', fg="#98ee99",troughcolor="#FFFFFF")
+        self.slider.set(1)
+        self.submit = Button(aba, text="Aplicar",bg='#98ee99',command=self.threshold, padx=3)
+        #self.data.grid(row=0,column=0)
+        self.text.grid(row=1,column=0, columnspan=3, sticky=W+E)
+        self.spin.grid(row=2,column=0, columnspan=3, sticky=W+E)
+        self.text2.grid(row=3,column=0, columnspan=3, sticky=W+E)
+        self.slider.grid(row=4,column=0, columnspan=3, sticky=W+E)
+        self.submit.grid(row=5,column=0, columnspan=3, sticky=W+E)
+        self.controls.pack()
+
+    def threshold(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = self.img
+        i = np.array(img)
+        f = int(self.spin.get())
+        t = int(self.slider.get())
+        it = bk.thresholding(i,t,f) 
+        self.img = Image.fromarray(it)
+        self.old_img = img
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+
+    def efeito_gaussian(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        tabs = self.controls.tabs()
+        for t in tabs:
+            self.controls.hide(t)
+        aba = Frame(self.controls,bg='#102027')
+        self.controls.add(aba, text='Ajustes do efeito')
+        self.title = Label(aba, text="Desfoque Gaussiano", bg='#102027', fg='#FFFFFF',font="roboto 12")
+        self.title.grid(row=0,column=0,columnspan=3, sticky=W+E)
+        self.text = Label(aba, text="Tamanho do filtro: ", bg='#102027', fg='#FFFFFF')
+        self.spin = Spinbox(aba, values=(3,5,7,9), width=5)
+        self.text2 = Label(aba, text="Sigma:", bg='#102027', fg='#FFFFFF')
+        self.slider = Scale(aba,from_= 0, to = 100, width=10, orient=HORIZONTAL, bg='#102027',highlightbackground='#102027',highlightcolor='#102027', fg="#98ee99",troughcolor="#FFFFFF")
+        self.slider.set(1)
+        self.submit = Button(aba, text="Aplicar",bg='#98ee99',command=self.gauss, padx=3)
+        #self.data.grid(row=0,column=0)
+        self.text.grid(row=1,column=0, columnspan=3, sticky=W+E)
+        self.spin.grid(row=2,column=0, columnspan=3, sticky=W+E)
+        self.text2.grid(row=3,column=0, columnspan=3, sticky=W+E)
+        self.slider.grid(row=4,column=0, columnspan=3, sticky=W+E)
+        self.submit.grid(row=5,column=0, columnspan=3, sticky=W+E)
+        self.controls.pack()
+
+    def gauss(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = self.img
+        i = np.array(img)
+        f = int(self.spin.get())
+        print(f)
+        c = float(self.slider.get())
+        c = c/100
+        print(c)
+        it = bk.gaussian_filter(i, f, c) 
+        self.img = Image.fromarray(it)
+        self.old_img = img
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+
+    def efeito_contraharmonic_meanfilter(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        tabs = self.controls.tabs()
+        for t in tabs:
+            self.controls.hide(t)
+        aba = Frame(self.controls,bg='#102027')
+        self.controls.add(aba, text='Ajustes do efeito')
+        self.title = Label(aba, text="Média Contra-harmônica", bg='#102027', fg='#FFFFFF',font="roboto 12")
+        self.title.grid(row=0,column=0,columnspan=3, sticky=W+E)
+        self.text = Label(aba, text="Tamanho do filtro: ", bg='#102027', fg='#FFFFFF')
+        self.spin = Spinbox(aba, values=(3,5,7,9), width=5)
+        self.text2 = Label(aba, text="Ordem do filtro:", bg='#102027', fg='#FFFFFF')
+        self.slider = Scale(aba,from_= -10, to = 10, width=10, orient=HORIZONTAL, bg='#102027',highlightbackground='#102027',highlightcolor='#102027', fg="#98ee99",troughcolor="#FFFFFF")
+        self.slider.set(0)
+        self.submit = Button(aba, text="Aplicar",bg='#98ee99',command=self.contraharmonic_meanfilter, padx=3)
+        #self.data.grid(row=0,column=0)
+        self.text.grid(row=1,column=0, columnspan=3, sticky=W+E)
+        self.spin.grid(row=2,column=0, columnspan=3, sticky=W+E)
+        self.text2.grid(row=3,column=0, columnspan=3, sticky=W+E)
+        self.slider.grid(row=4,column=0, columnspan=3, sticky=W+E)
+        self.submit.grid(row=5,column=0, columnspan=3, sticky=W+E)
+        self.controls.pack()
+
+    def contraharmonic_meanfilter(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = self.img
+        i = np.array(img)
+        f = int(self.spin.get())
+        q = float(self.slider.get())
+        q = q/100
+        if len(i.shape) == 2:
+            it = bk.contraharmonic_mean_filter(i, f, q)
+        else:
+            it = bk.contraharmonic_mean_filter_rgb(i,f,q)    
+        self.img = Image.fromarray(it)
+        self.old_img = img
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+
+    def efeito_gamma(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        tabs = self.controls.tabs()
+        for t in tabs:
+            self.controls.hide(t)
+        aba = Frame(self.controls,bg='#102027')
+        self.controls.add(aba, text='Ajustes do efeito')
+        self.title = Label(aba, text="Efeito Gamma", bg='#102027', fg='#FFFFFF',font="roboto 12")
+        self.title.grid(row=0,column=0,columnspan=3, sticky=W+E)
+        self.text = Label(aba, text="Gamma: ", bg='#102027', fg='#FFFFFF')
+        self.slider = Scale(aba,from_= 1, to = 20, width=10, orient=HORIZONTAL, bg='#102027',highlightbackground='#102027',highlightcolor='#102027', fg="#98ee99",troughcolor="#FFFFFF")
+        self.slider.set(1)
+        self.submit = Button(aba, text="Aplicar",bg='#98ee99',command=self.gamma, padx=3)
+        #self.data.grid(row=0,column=0)
+        self.text.grid(row=1,column=0, columnspan=3, sticky=W+E)
+        self.slider.grid(row=2,column=0, columnspan=3, sticky=W+E)
+        self.submit.grid(row=3,column=0, columnspan=3, sticky=W+E)
+        self.controls.pack()
+
+    def gamma(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = self.img
+        i = np.array(img) 
+        gamma = int(self.slider.get())
+        it = bk.gamma_filter(i,gamma) 
+        self.img = Image.fromarray(it)
+        self.old_img = img
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+
     def efeito_meanfilter(self):
         #url = 'images/'+self.input.get()
         #url = self.input
         #img = Image.open('images/einstein.jpeg')
-        self.controls.hide(self.abacontrole)
+        tabs = self.controls.tabs()
+        for t in tabs:
+            self.controls.hide(t)
         self.abamean = Frame(self.controls,bg='#102027')
         self.controls.add(self.abamean, text='Ajustes do filtro')
-        self.title = Label(self.abamean, text="Filtro da Média", font="roboto 12")
-        self.title.grid(row=0,column=0,columnspan=2, sticky=W+E)
-        self.text = Label(self.abamean, text="Tamanho do filtro: ")
-        self.spin = Spinbox(self.abamean, values=(1,3,5,7,9), width=5)   
-        self.submit = Button(self.abamean, text="Aplicar",command=self.meanfilter)
+        self.title = Label(self.abamean, text="Filtro da Média", bg='#102027', fg='#FFFFFF',font="roboto 12")
+        self.title.grid(row=0,column=0,columnspan=3, sticky=W+E)
+        self.text = Label(self.abamean, text="Tamanho do filtro: ", bg='#102027', fg='#FFFFFF')
+        self.spin = Spinbox(self.abamean, values=(3,5,7,9), width=5)   
+        self.submit = Button(self.abamean, text="Aplicar",bg='#98ee99',command=self.meanfilter, padx=3)
         #self.data.grid(row=0,column=0)
         self.text.grid(row=1,column=0)
-        self.spin.grid(row=1,column=1)
-        self.submit.grid(row=2,column=0, columnspan=2, sticky=W+E)
+        self.spin.grid(row=1,column=2)
+        self.submit.grid(row=2,column=0, columnspan=3, sticky=W+E)
         self.controls.pack()
     
 
@@ -541,59 +835,304 @@ class main:
         self.c.image = ImageTk.PhotoImage(self.img)
         self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
         self.c.pack()
-        self.controls.hide(self.abamean)
         self.controls.add(self.abacontrole)
+        self.controls.hide(self.abamean)
         self.abacontrole.focus()
 
-    def gaussianfilter(self):
+    def efeito_medianfilter(self):
         #url = 'images/'+self.input.get()
         #url = self.input
         #img = Image.open('images/einstein.jpeg')
+        tabs = self.controls.tabs()
+        for t in tabs:
+            self.controls.hide(t)
+        self.abamean = Frame(self.controls,bg='#102027')
+        self.controls.add(self.abamean, text='Ajustes do filtro')
+        self.title = Label(self.abamean, text="Filtro da Mediana", bg='#102027', fg='#FFFFFF',font="roboto 12")
+        self.title.grid(row=0,column=0,columnspan=3, sticky=W+E)
+        self.text = Label(self.abamean, text="Tamanho do filtro: ", bg='#102027', fg='#FFFFFF')
+        self.spin = Spinbox(self.abamean, values=(3,5,7,9), width=5)   
+        self.submit = Button(self.abamean, text="Aplicar",bg='#98ee99',command=self.medianfilter, padx=3)
+        #self.data.grid(row=0,column=0)
+        self.text.grid(row=1,column=0)
+        self.spin.grid(row=1,column=2)
+        self.submit.grid(row=2,column=0, columnspan=3, sticky=W+E)
+        self.controls.pack()
+    
+
+    def medianfilter(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        f = int(self.spin.get())
         img = self.img
         i = np.array(img)
         #i = colors.rgb2gray(i)
-        it = bk.gaussian_filter(i, 5, 0.8)
+        if len(i.shape) == 2:
+            it = bk.median_filter(i,f)
+        else:
+            it = bk.median_filter_rgb(i,f)
         self.img = Image.fromarray(it) 
         self.old_img = img
         self.c.image = ImageTk.PhotoImage(self.img)
         self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
         self.c.pack()
+        self.controls.add(self.abacontrole)
+        self.controls.hide(self.abamean)
+        self.abacontrole.focus()
 
-
-    def efeito_laplacefilter(self):
+    def efeito_geometricmeanfilter(self):
         #url = 'images/'+self.input.get()
         #url = self.input
         #img = Image.open('images/einstein.jpeg')
+        tabs = self.controls.tabs()
+        for t in tabs:
+            self.controls.hide(t)
+        self.abamean = Frame(self.controls,bg='#102027')
+        self.controls.add(self.abamean, text='Ajustes do filtro')
+        self.title = Label(self.abamean, text="Filtro da Média Geométrica", bg='#102027', fg='#FFFFFF',font="roboto 12")
+        self.title.grid(row=0,column=0,columnspan=3, sticky=W+E)
+        self.text = Label(self.abamean, text="Tamanho do filtro: ", bg='#102027', fg='#FFFFFF')
+        self.spin = Spinbox(self.abamean, values=(3,5,7,9), width=5)   
+        self.submit = Button(self.abamean, text="Aplicar",bg='#98ee99',command=self.geometric_meanfilter, padx=3)
+        #self.data.grid(row=0,column=0)
+        self.text.grid(row=1,column=0)
+        self.spin.grid(row=1,column=2)
+        self.submit.grid(row=2,column=0, columnspan=3, sticky=W+E)
+        self.controls.pack()
+    
+
+    def geometric_meanfilter(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        f = int(self.spin.get())
         img = self.img
-        self.old_img = img
         i = np.array(img)
         #i = colors.rgb2gray(i)
-        it = bk.laplacian_filter(i)
+        if len(i.shape) == 2:
+            it = bk.geometric_mean_filter(i,f)
+        else:
+            it = bk.geometric_mean_filter_rgb(i,f)
         self.img = Image.fromarray(it) 
+        self.old_img = img
         self.c.image = ImageTk.PhotoImage(self.img)
         self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
         self.c.pack()
+        self.controls.add(self.abacontrole)
+        self.controls.hide(self.abamean)
+        self.abacontrole.focus()
+
+    def efeito_harmonic_meanfilter(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        tabs = self.controls.tabs()
+        for t in tabs:
+            self.controls.hide(t)
+        self.abamean = Frame(self.controls,bg='#102027')
+        self.controls.add(self.abamean, text='Ajustes do filtro')
+        self.title = Label(self.abamean, text="Filtro da Média Harmônica", bg='#102027', fg='#FFFFFF',font="roboto 12")
+        self.title.grid(row=0,column=0,columnspan=3, sticky=W+E)
+        self.text = Label(self.abamean, text="Tamanho do filtro: ", bg='#102027', fg='#FFFFFF')
+        self.spin = Spinbox(self.abamean, values=(3,5,7,9), width=5)   
+        self.submit = Button(self.abamean, text="Aplicar",bg='#98ee99',command=self.harmonic_meanfilter, padx=3)
+        #self.data.grid(row=0,column=0)
+        self.text.grid(row=1,column=0)
+        self.spin.grid(row=1,column=2)
+        self.submit.grid(row=2,column=0, columnspan=3, sticky=W+E)
+        self.controls.pack()
+    
+
+    def harmonic_meanfilter(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        f = int(self.spin.get())
+        img = self.img
+        i = np.array(img)
+        #i = colors.rgb2gray(i)
+        if len(i.shape) == 2:
+            it = bk.harmonic_mean_filter(i,f)
+        else:
+            it = bk.harmonic_mean_filter_rgb(i,f)
+        self.img = Image.fromarray(it) 
+        self.old_img = img
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+        self.controls.add(self.abacontrole)
+        self.controls.hide(self.abamean)
+        self.abacontrole.focus()
+
+    def control_convmatriz(self):
+        tabs = self.controls.tabs()
+        for t in tabs:
+            self.controls.hide(t)
+        aba = Frame(self.controls,bg='#102027')
+        self.controls.add(aba, text='Ajustes do efeito')
+        self.title = Label(aba, text="Matriz Genérica", bg='#102027', fg='#FFFFFF',font="roboto 12")
+        self.title.grid(row=0,column=0,columnspan=3,sticky=W+E)
+        self.text = Label(aba, text="Tamanho da matriz: ", bg='#102027', fg='#FFFFFF')
+        self.spin = Spinbox(aba, values=(3,5,7,9), width=5)
+        self.text2 = Label(aba, text="Os valores da matriz: (x,y,z,...)", bg='#102027', fg='#FFFFFF')
+        #style.configure("BW.Horizontal.TScale", foreground="black", background="#102027",padx=2)
+        self.entrada = Entry(aba)
+        self.text3 = Label(aba, text="Os valores da matriz: (x,y,z,...)", bg='#102027', fg='#102027')
+        self.submit = Button(aba, text="Aplicar",command=self.efeito_convmatriz, bg='#98ee99')
+        #self.data.grid(row=0,column=0)
+        self.text.grid(row=1,column=0, columnspan=3,sticky=W+E)
+        self.spin.grid(row=2, column=0, columnspan=3)
+        self.text2.grid(row=3,column=0, columnspan=3,sticky=W+E)
+        self.entrada.grid(row=4,column=0, columnspan=3,sticky=W+E)
+        self.text3.grid(row=5,column=0, columnspan=3,sticky=W+E)
+        self.submit.grid(row=6,column=0, columnspan=3,sticky=W+E)
+        self.controls.add(aba)
+        aba.focus()
+
+    def efeito_convmatriz(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = np.array(self.img)
+        #i = colors.rgb2gray(i)
+        size = int(self.spin.get())
+        string = self.entrada.get()
+        lista = string.split (",")
+        kernel = []
+        for i in lista:
+            kernel.append(int(i))
+        if len(kernel) != size**2:
+            messagebox.showerror("ERRO!","O número de elementos está errado!")
+        kernel = np.array(kernel)
+        shape = (size,size)
+        kernel.shape = shape
+        it = bk.conv_filter(img,kernel)
+        self.img = Image.fromarray(it)
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.config(width=self.img.width, height=self.img.height)
+        self.c.create_image(self.img.width/2, self.img.height/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+        self.sizelbl['text'] = "Tamanho da imagem: %02dx%02d" %(self.img.width,self.img.height)
+        resize = '%02dx%02d+100+100' % (400 + self.img.width, 100 + self.img.height)
+        root.geometry(resize)
+
+    def control_chromakey(self):
+        tabs = self.controls.tabs()
+        for t in tabs:
+            self.controls.hide(t)
+        self.imgfundo = np.array(self.img)
+        url = filedialog.askopenfilename(title="Selecione a imagem que ficará a frente")
+        #self.input = url
+        #img = Image.open('images/einstein.jpeg')
+        self.img = Image.open(url)
+        self.old_img = self.imgfundo
+        aba = Frame(self.controls,bg='#102027')
+        self.controls.add(aba, text='Ajustes do efeito')
+        self.title = Label(aba, text="Chroma Key", bg='#102027', fg='#FFFFFF',font="roboto 12")
+        self.title.grid(row=0,column=0,columnspan=3, sticky=W+E)
+        self.textcor = Label(aba, text="Ajuste a cor nos slider da direita → →", bg='#102027', fg='#FFFFFF')
+        self.textslider = Label(aba, text="Faixa: ", bg='#102027', fg='#FFFFFF')
+        #style.configure("BW.Horizontal.TScale", foreground="black", background="#102027",padx=2)
+        self.slider = Scale(aba,from_= 0, to = 255, width=10, orient=HORIZONTAL, bg='#102027',highlightbackground='#102027',highlightcolor='#102027', fg="#98ee99",troughcolor="#FFFFFF")
+        self.slider.set(100)
+        self.submit = Button(aba, text="Aplicar",command=self.efeito_chromakey, bg='#98ee99')
+        #self.data.grid(row=0,column=0)
+        self.textcor.grid(row=1,column=0,columnspan=3,sticky=W+E)
+        self.textslider.grid(row=2,column=0, columnspan=3,sticky=W+E)
+        self.slider.grid(row=3,column=0, columnspan=3,sticky=W+E)
+        self.submit.grid(row=4,column=0, columnspan=3, sticky=W+E)
+        self.controls.add(aba)
+        aba.focus()
 
     def efeito_chromakey(self):
         #url = 'images/'+self.input.get()
         #url = self.input
         #img = Image.open('images/einstein.jpeg')
-        imgfundo = np.array(self.img)
-        url = filedialog.askopenfilename()
-        #self.input = url
-        #img = Image.open('images/einstein.jpeg')
-        self.img = Image.open(url)
-        self.old_img = imgfundo
         img = np.array(self.img)
         print("Imagem: ",img)
         #i = colors.rgb2gray(i)
-        it = cl.chroma_key(img, imgfundo, self.old_red, self.old_green, self.old_blue, 10)
+        faixa = int(self.slider.get())
+        it = cl.chroma_key(img, self.imgfundo, self.old_red, self.old_green, self.old_blue, faixa)
         print(it)
         self.img = Image.fromarray(it)
         self.c.image = ImageTk.PhotoImage(self.img)
         self.c.config(width=self.img.width, height=self.img.height)
         self.c.create_image(self.img.width/2, self.img.height/2, anchor=CENTER, image=self.c.image)
         self.c.pack()
+        self.sizelbl['text'] = "Tamanho da imagem: %02dx%02d" %(self.img.width,self.img.height)
+        resize = '%02dx%02d+100+100' % (400 + self.img.width, 100 + self.img.height)
+        root.geometry(resize)
+
+    def control_aumentarHSV(self):
+        tabs = self.controls.tabs()
+        for t in tabs:
+            self.controls.hide(t)
+        aba = Frame(self.controls,bg='#102027')
+        self.controls.add(aba, text='Ajustes do efeito')
+        self.title = Label(aba, text="Hue/Sat/Value", bg='#102027', fg='#FFFFFF',font="roboto 12")
+        self.title.grid(row=0,column=0,columnspan=3, sticky=W+E)
+        self.texth = Label(aba, text="Matiz: ", bg='#102027', fg='#FFFFFF')
+        self.texts = Label(aba, text="Saturação: ", bg='#102027', fg='#FFFFFF')
+        self.textv = Label(aba, text="Iluminação: ", bg='#102027', fg='#FFFFFF')
+        #style.configure("BW.Horizontal.TScale", foreground="black", background="#102027",padx=2)
+        self.sliderh = Scale(aba,from_= 0, to = 200, width=10, orient=HORIZONTAL, bg='#102027',highlightbackground='#102027',highlightcolor='#102027', fg="#98ee99",troughcolor="#FFFFFF")
+        self.sliderh.set(100)
+        self.sliders = Scale(aba,from_= 0, to = 200, width=10, orient=HORIZONTAL, bg='#102027',highlightbackground='#102027',highlightcolor='#102027', fg="#98ee99",troughcolor="#FFFFFF")
+        self.sliders.set(100)
+        self.sliderv = Scale(aba,from_= 0, to = 200, width=10, orient=HORIZONTAL, bg='#102027',highlightbackground='#102027',highlightcolor='#102027', fg="#98ee99",troughcolor="#FFFFFF")
+        self.sliderv.set(100)
+        self.submit = Button(aba, text="Aplicar",command=self.efeito_aumentarHSV, bg='#98ee99')
+        #self.data.grid(row=0,column=0)
+        self.texth.grid(row=1,column=0,columnspan=3,sticky=W+E)
+        self.sliderh.grid(row=2,column=0, columnspan=3,sticky=W+E)
+        self.texts.grid(row=3,column=0,columnspan=3,sticky=W+E)
+        self.sliders.grid(row=4,column=0, columnspan=3,sticky=W+E)
+        self.textv.grid(row=5,column=0,columnspan=3,sticky=W+E)
+        self.sliderv.grid(row=6,column=0, columnspan=3,sticky=W+E)
+        self.submit.grid(row=7,column=0, columnspan=3, sticky=W+E)
+        self.controls.add(aba)
+        aba.focus()
+
+    def efeito_aumentarHSV(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = np.array(self.img)
+        #self.input = url
+        #img = Image.open('images/einstein.jpeg')
+        print("Imagem: ",img)
+        #i = colors.rgb2gray(i)
+        amounth = int(self.sliderh.get())
+        amounts = int(self.sliders.get())
+        amountv = int(self.sliderv.get())
+        it = cl.HueSatVal_adjust(img, amounth,amounts,amountv)
+        print(it)
+        self.img = Image.fromarray(it)
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.config(width=self.img.width, height=self.img.height)
+        self.c.create_image(self.img.width/2, self.img.height/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+    
+    def control_aumentarbrilho(self):
+        tabs = self.controls.tabs()
+        for t in tabs:
+            self.controls.hide(t)
+        ababrilho = Frame(self.controls,bg='#102027')
+        self.controls.add(ababrilho, text='Ajustes do efeito')
+        self.title = Label(ababrilho, text="Brilho", bg='#102027', fg='#FFFFFF',font="roboto 12")
+        self.title.grid(row=0,column=0,columnspan=3, sticky=W+E)
+        self.text = Label(ababrilho, text="Quantidade de brilho: ", bg='#102027', fg='#FFFFFF')
+        #style.configure("BW.Horizontal.TScale", foreground="black", background="#102027",padx=2)
+        self.slider = Scale(ababrilho,from_= 0, to = 200, width=10, orient=HORIZONTAL, bg='#102027',highlightbackground='#102027',highlightcolor='#102027', fg="#98ee99",troughcolor="#FFFFFF")
+        self.slider.set(100)
+        self.submit = Button(ababrilho, text="Aplicar",command=self.efeito_aumentarbrilho, bg='#98ee99')
+        #self.data.grid(row=0,column=0)
+        self.text.grid(row=1,column=0,columnspan=3,sticky=W+E)
+        self.slider.grid(row=2,column=0, columnspan=3,sticky=W+E)
+        self.submit.grid(row=3,column=0, columnspan=3, sticky=W+E)
+        self.controls.add(ababrilho)
+        ababrilho.focus()
 
     def efeito_aumentarbrilho(self):
         #url = 'images/'+self.input.get()
@@ -604,7 +1143,8 @@ class main:
         #img = Image.open('images/einstein.jpeg')
         print("Imagem: ",img)
         #i = colors.rgb2gray(i)
-        it = cl.aumentarbrilho(img, 110)
+        amount = int(self.slider.get())
+        it = cl.aumentarbrilho(img, amount)
         print(it)
         self.img = Image.fromarray(it)
         self.c.image = ImageTk.PhotoImage(self.img)
@@ -664,7 +1204,7 @@ class main:
         
         
 
-    def inversaFourier(self):
+    def inversaFourierbkp(self):
         img = Image.open('canvas.jpg')
         filtro = np.array(img)
         filtro = cl.rgb2gray(filtro)
@@ -687,6 +1227,9 @@ class main:
             for n in range(espectro.shape[1]):
                 if filtro[m,n] == 0:
                     espectro[m,n] = 0
+                elif filtro[m,n] == 1:
+                    espectro[m,n] = 1
+
                 #invimg[m,n] = espectro[m,n] * filtro[m,n]
 
         f = fr.ifft2shift(espectro)
@@ -697,8 +1240,46 @@ class main:
         self.c.config(width=self.img.width, height=self.img.height)
         self.c.create_image(self.img.width/2, self.img.height/2, anchor=CENTER, image=self.c.image)
         self.c.pack()
+        resize = '%02dx%02d+100+100' % (400 + self.img.width, 100 + self.img.height)
+        root.geometry(resize)
+
+    def inversaFourier(self):
+        #img = Image.open('canvas.jpg')
+        filtro = self.mcanvas
+        #filtro = cl.rgb2gray(filtro)
+        #espectro = np.array(self.img)
+        espectro = self.fouriert
+        #diffwidth, diffheight = ( filtro.shape[0] - espectro.shape[0] ), ( filtro.shape[1] - espectro.shape[1] )
+        #print("Diff: ",diffwidth,", ", diffheight)
+        #initw = int(round(diffwidth/2))
+        #finalw = diffwidth - initw
+        #inith = int(round(diffheight/2))
+        #finalh = diffheight - inith
+        #print("Dimensões: ", initw, ", ", finalw, ", ", inith, ", ",finalh)
+        print("ESPECTRO: ",espectro)
+        print("FILTRO: ",filtro)
+        #width = filtro.shape[0] - finalw
+        #height = filtro.shape[1] - finalh
+        #filtro = filtro[initw:width, inith:height]
+        
+        for m in range(espectro.shape[0]):
+            for n in range(espectro.shape[1]):
+                espectro[m,n] = espectro[m,n]*filtro[m,n]
+                #invimg[m,n] = espectro[m,n] * filtro[m,n]
+        print("ESPECTRO * FILTRO: ",espectro)
+        f = fr.ifft2shift(espectro)
+        f = fr.ifft2(f)
+        self.img = Image.fromarray(f)
+        #self.old_img = img
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.config(width=self.img.width, height=self.img.height)
+        self.c.create_image(self.img.width/2, self.img.height/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+        resize = '%02dx%02d+100+100' % (400 + self.img.width, 100 + self.img.height)
+        root.geometry(resize)
 
     def inversaGaussFourier(self):
+        print("OPA!")
         img = Image.open('canvas.jpg')
         filtro = np.array(img)
         filtro = bk.gaussian_filter(filtro,5,0.5)
@@ -722,8 +1303,9 @@ class main:
             for n in range(espectro.shape[1]):
                 if filtro[m,n] == 0:
                     espectro[m,n] = 0
+                elif filtro[m,n] == 1:
+                    espectro[m,n] = 1
                 #invimg[m,n] = espectro[m,n] * filtro[m,n]
-
         f = fr.ifft2shift(espectro)
         f = fr.ifft2(f)
         self.img = Image.fromarray(f)
@@ -732,12 +1314,49 @@ class main:
         self.c.config(width=self.img.width, height=self.img.height)
         self.c.create_image(self.img.width/2, self.img.height/2, anchor=CENTER, image=self.c.image)
         self.c.pack()
+        resize = '%02dx%02d+100+100' % (400 + self.img.width, 100 + self.img.height)
+        root.geometry(resize)
+        root.geometry(resize)
+
+    def controllerPincelFourier(self):
+        tabs = self.controls.tabs()
+        for t in tabs:
+            self.controls.hide(t)
+        self.controls.add(self.abacontrole)
+        self.abacontrole.focus()
+
+        s = self.pincelFourier
+        print(s)
+        if s == "Pincel Disco":
+            self.inversaFourier()
+        elif s == "Pincel Gaussiano":
+            self.inversaGaussFourier()
+    
+    def controllerFiltroFourier(self):
+        tabs = self.controls.tabs()
+        self.controls.add(self.abacontrole)
+        self.abacontrole.focus()
+        for t in tabs:
+            self.controls.hide(t)
+
+        s = self.filtroFourier
+        
+        if s == "Passa Baixa":
+            radius = int(self.slider2.get())
+            self.passa_baixa(radius)
+        elif s == "Passa Alta":
+            radius = int(self.slider2.get())
+            self.passa_alta(radius)
+        elif s == "Passa Faixa":
+            radius = int(self.slider2.get())
+            radius2 = int(self.slider3.get())
+            self.passa_faixa(radius, radius2)
 
     def fourier(self):
         #url = 'images/'+self.input.get()
         #url = self.input
         #img = Image.open('images/einstein.jpeg')
-        self.submitDraw["state"]="active"
+        #self.submitDraw["state"]="active"
         img = self.img
         self.old_img = img
         i = np.array(img)
@@ -750,8 +1369,8 @@ class main:
         #print(abs(ft))
         espectro = plt.imshow(abs(ft), cmap='gray')
         ax = plt.gca()
-        ax.set_xticklabels([]) 
-        ax.set_yticklabels([]) 
+        ax.set_xticklabels([])
+        ax.set_yticklabels([])
 
         plt.savefig('images/ftemp.png', bbox_inches='tight')   # save the figure to file
         #plt.close(fig)
@@ -778,10 +1397,80 @@ class main:
         self.c.config(width=self.img.width, height=self.img.height)
         self.c.create_image(self.img.width/2, self.img.height/2, anchor=CENTER, image=self.c.image)
         self.c.pack()
+        resize = '%02dx%02d+100+100' % (400 + self.size[0], 100 + self.size[1])
+        root.geometry(resize)
         white = (255, 255, 255)
         print('Tamanho: ',self.size)
         self.input = Image.new("RGB", (self.size), white)
         self.draw = ImageDraw.Draw(self.input)
+        tabs = self.controls.tabs()
+        for t in tabs:
+            self.controls.hide(t)
+        
+        abapincel = Frame(self.controls,bg='#102027')
+        abafiltros = Frame(self.controls,bg='#102027')
+        title = Label(abapincel, text="Pincel", bg='#102027', fg='#FFFFFF',font="roboto 12")
+        title.grid(row=0,column=0,columnspan=3, sticky=W+E)
+        pinceis = [
+            "Pincel Disco",
+            "Pincel Gaussiano",
+        ]
+        choose = StringVar()
+        choose.set(pinceis[0])
+        self.pincelFourier = pinceis[0]
+        def add_pincel(e):
+            print(e)
+            self.pincelFourier = e
+        pintxt = Label(abapincel, text='Tipos:',font=('roboto 12'),bg='#102027',fg='#ffffff',padx=2)
+        pintxt.grid(row=1,column=0, columnspan=3, sticky=W+E)
+        drop = OptionMenu(abapincel, choose, *pinceis,command=add_pincel)
+        drop.grid(row=2,column=0, columnspan=3, sticky=W+E)
+        raiotxt = Label(abapincel, text='Raio pincel:',font=('roboto 12'),bg='#102027',fg='#ffffff',padx=2)
+        raiotxt.grid(row=3,column=0, columnspan=3, sticky=W+E)
+        style = ttk.Style()
+        style.configure("BW.Horizontal.TScale", foreground="black", background="#102027",padx=2)
+        self.slider = ttk.Scale(abapincel,from_= 5, to = 200,command=self.changeW,orient=HORIZONTAL, style="BW.Horizontal.TScale")
+        self.mcanvas = np.ones(self.size)
+        self.slider.set(self.penwidth)
+        self.slider.grid(row=4,column=0, columnspan=3, sticky=W+E)
+        self.submitDraw = Button(abapincel, text="Aplicar Filtro",command=self.controllerPincelFourier,bg='#98ee99',fg='#000000',padx=2)
+        self.submitDraw.grid(row=5,column=0, columnspan=3, sticky=W+E)
+
+        title = Label(abafiltros, text="Filtros", bg='#102027', fg='#FFFFFF',font="roboto 12")
+        title.grid(row=0,column=0,columnspan=3, sticky=W+E)
+        filtros = [
+            "Passa Baixa",
+            "Passa Alta",
+            "Passa Faixa"
+        ]
+        choose2 = StringVar()
+        choose2.set(filtros[0])
+        self.filtroFourier = filtros[0]
+        filtxt = Label(abafiltros, text='Tipos:',font=('roboto 12'),bg='#102027',fg='#ffffff',padx=2)
+        filtxt.grid(row=1,column=0, columnspan=3, sticky=W+E)
+        
+        def add_slider(e):
+            print(e)
+            self.filtroFourier = e
+            if e == "Passa Faixa":
+                num = int(self.slider2.get())
+                self.slider3 = Scale(abafiltros,from_= 1, to = 190,orient=HORIZONTAL)
+                self.slider3.set(1)
+                self.slider3.grid(row=3,column=0, columnspan=3, sticky=W+E)
+            else:
+                self.slider3.grid_forget()
+        self.slider2 = Scale(abafiltros,from_= 10, to = 200,orient=HORIZONTAL)
+        self.slider2.set(10)
+        self.slider2.grid(row=4,column=0, columnspan=3, sticky=W+E)
+        self.slider3 = Scale(abafiltros,from_= 1, to = 190,orient=HORIZONTAL)
+        self.slider3.set(1)
+        self.submitFilter = Button(abafiltros, text="Aplicar Filtro",command=self.controllerFiltroFourier,bg='#98ee99',fg='#000000',padx=2)
+        self.submitFilter.grid(row=5,column=0, columnspan=3, sticky=W+E)
+        drop2 = OptionMenu(abafiltros, choose2, *filtros, command=add_slider)
+        drop2.grid(row=2,column=0, columnspan=3, sticky=W+E)
+        self.controls.add(abapincel, text='Pincel')
+        self.controls.add(abafiltros, text='Filtros no espectro')
+        abapincel.focus()
         
 
     
@@ -789,6 +1478,7 @@ class main:
     def loadimg(self):
         #url = 'images/'+self.input.get()
         url = filedialog.askopenfilename()
+        #filetypes=(("png files","*.png"),("jpg files","*.jpg"),("jpeg files","*.jpeg"),("gif files","*.gif"),("tiff files","*.tiff"),("bitmap files","*.tiff"))
         #self.input = url
         #img = Image.open('images/einstein.jpeg')
         self.img = Image.open(url)
@@ -811,7 +1501,6 @@ class main:
         white = (255, 255, 255)
         self.input = Image.new("RGB", (self.size), white)
         self.draw = ImageDraw.Draw(self.input)
-
         self.sizelbl['text'] = "Tamanho da imagem: %02dx%02d" %(self.size[0],self.size[1])
 
         
@@ -825,20 +1514,15 @@ class main:
         self.footer = Frame(self.master,relief='groove',bg='#37474f',pady=4)
 
         styleAbas = ttk.Style()
-        styleAbas.configure("C.TNotebook", foreground="#37474f", background='#102027')
+        styleAbas.configure("C.TNotebook", foreground="#FFFFFF", background='#FFFFFF', sticky=N+S+W+E)
         self.controls = ttk.Notebook(self.master, height=450, width=200, style="C.TNotebook")
         self.abacontrole = Frame(self.controls,bg='#102027')#2
-        self.controls.add(self.abacontrole, text='Ajustes pincel')
+        #iphoto = ImageTk.PhotoImage(Image.open('leaf.jpg'))
+        #ilbl = Label(self.abacontrole, image=iphoto, padx=4)
+        #ilbl.image = iphoto
+        #ilbl.grid(row=0,column=0)
+        self.controls.add(self.abacontrole, text='Início')
 
-        raiotxt = Label(self.abacontrole, text='Raio pincel:',font=('roboto 12'),bg='#102027',fg='#ffffff')
-        raiotxt.grid(row=0,column=0)
-        style = ttk.Style()
-        style.configure("BW.Horizontal.TScale", foreground="black", background="#102027")
-        self.slider = ttk.Scale(self.abacontrole,from_= 5, to = 200,command=self.changeW,orient=HORIZONTAL, style="BW.Horizontal.TScale")
-        self.slider.set(self.penwidth)
-        self.slider.grid(row=1,column=0, columnspan=3, sticky=W+E)
-        self.submitDraw = Button(self.abacontrole, text="Aplicar Filtro",command=self.inversaFourier,bg='#62727b',fg='#000000',state="disabled")
-        self.submitDraw.grid(row=2,column=0, columnspan=3, sticky=W+E)
         desfaz = Button(self.toolbar, text="<<",command=lambda:self.undo(0),bg='#62727b',fg='#ffffff')
         desfaz.grid(row=0,column=0)
         img = ImageTk.PhotoImage(Image.open('Fs.png').resize((20,20)))
@@ -854,11 +1538,8 @@ class main:
         ufclbl.grid(row=0,column=5,sticky=W+E)
         self.toolbar.pack(side=TOP,expand=False, fill='x')
         self.footer.pack(side=BOTTOM,expand=False, fill='x')
-        self.controls.pack(side=LEFT, expand=False, fill=X)
+        self.controls.pack(side=LEFT, expand=False, fill=BOTH)
         
-
-        
-
 
         self.data = Frame(self.master)
         self.topdata = Frame(self.master,bg='#102027')
@@ -881,7 +1562,7 @@ class main:
 
         #SLIDERS RGB
         self.colordisplay = Canvas(self.colorframe,width=50,height=50,bg=self.color_fg)
-        Label(self.colorframe, text='Cor: ',bg='#102027',fg='#ffffff',font=('roboto 12')).grid(row=0,column=0)
+        Label(self.colorframe, text='Cor: ',bg='#102027',fg='#ffffff',font=('roboto 12'),pady=20).grid(row=0,column=0)
         self.cordisp = self.colordisplay.create_rectangle((0, 0, 50, 50), fill="black")
         self.colordisplay.grid(row=0, column=1)
         self.sliderR = Scale(self.abaRGB,from_= 0, to = 255,width=7,command=self.changeR,orient=HORIZONTAL, fg="red",troughcolor="dark red")
@@ -923,7 +1604,7 @@ class main:
         #print(os.getcwd())
         #print(os.listdir())
         self.c = Canvas(self.master,width=self.size[0],height=self.size[1],bg=self.color_bg, cursor='circle')
-        self.mcanvas = np.zeros(self.size, dtype=int)
+        self.mcanvas = np.ones(self.size)
 
         self.topdata.pack(side=RIGHT,expand=False)
         self.c.pack(side=TOP,expand=False)
@@ -948,21 +1629,34 @@ class main:
         colormenu.add_command(label='Cor do BG',command=self.change_bg)
         menu.add_cascade(label='Efeitos',menu=effectmenu)
         effectmenu.add_command(label='Aplicar Negativo',command=self.efeito_neg)
+        effectmenu.add_command(label='Aplicar Logaritmo',command=self.efeito_log)
+        effectmenu.add_command(label='Aplicar Gamma',command=self.efeito_gamma)
+        effectmenu.add_command(label='Aplicar Sépia',command=self.efeito_sepia)
+        effectmenu.add_command(label='Aplicar Threshold',command=self.efeito_threshold)
         effectmenu.add_command(label='Aplicar Eq. Histograma',command=self.efeito_hist)
         effectmenu.add_command(label='Aplicar Função',command=self.drawfunc)
-        effectmenu.add_command(label='Chroma Key',command=self.efeito_chromakey)
-        effectmenu.add_command(label='Aumentar Brilho',command=self.efeito_aumentarbrilho)
+        effectmenu.add_command(label='Chroma Key',command=self.control_chromakey)
+        effectmenu.add_command(label='Ajuste Brilho',command=self.control_aumentarbrilho)
+        effectmenu.add_command(label='Ajuste Matiz/Saturação',command=self.control_aumentarHSV)
         effectmenu.add_command(label='Histograma',command=self.histograma)
         effectmenu.add_command(label='Trans. Fourier',command=self.fourier)
+        effectmenu.add_command(label='Convolução matriz',command=self.control_convmatriz)
         effectmenu.add_separator()
         menu.add_cascade(label='Filtros',menu=filtermenu)
         filtermenu.add_command(label='Filtro Média',command=self.efeito_meanfilter)
-        filtermenu.add_command(label='Filtro Gaussiano',command=self.gaussianfilter)
-        filtermenu.add_command(label='Filtro Passa Baixa',command=lambda:self.passa_baixa(100))
-        filtermenu.add_command(label='Filtro Passa Alta',command=lambda:self.passa_alta(100))
-        filtermenu.add_command(label='Filtro Passa Faixa',command=lambda:self.passa_faixa(100,400))
-        filtermenu.add_command(label='Inversa Gaussiana',command=self.inversaGaussFourier)
+        filtermenu.add_command(label='Filtro Mediana',command=self.efeito_medianfilter)
+        filtermenu.add_command(label='Filtro Média Geométrica',command=self.efeito_geometricmeanfilter)
+        filtermenu.add_command(label='Filtro Média Harmônica',command=self.efeito_harmonic_meanfilter)
+        filtermenu.add_command(label='Filtro Média Contra-Harmônica',command=self.efeito_contraharmonic_meanfilter)
+        filtermenu.add_command(label='Filtro Gaussiano',command=self.efeito_gaussian)
         filtermenu.add_command(label='Filtro Laplaciano',command=self.efeito_laplacefilter)
+        filtermenu.add_command(label='Filtro Highboost',command=self.efeito_highboost)
+        #filtermenu.add_command(label='Filtro Passa Baixa',command=lambda:self.passa_baixa(100))
+        #filtermenu.add_command(label='Filtro Passa Alta',command=lambda:self.passa_alta(100))
+        #filtermenu.add_command(label='Filtro Passa Faixa',command=lambda:self.passa_faixa(100,400))
+        #filtermenu.add_command(label='Inversa Gaussiana',command=self.inversaGaussFourier)
+        filtermenu.add_command(label='Filtro Sharpen',command=self.efeito_sharpen)
+        filtermenu.add_command(label='Filtro Sobel',command=self.efeito_sobel)
         menu.add_cascade(label='Opções',menu=optionmenu)
         optionmenu.add_command(label='Salvar Canvas',command=self.save)
         optionmenu.add_command(label='Limpar Canvas',command=self.clear)
