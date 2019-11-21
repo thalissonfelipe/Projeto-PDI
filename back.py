@@ -101,13 +101,14 @@ def equalize_hist(image, hist):
 
 
 def conv(image, kernel):
+    print(image.shape)
     height, width = image.shape
     output = np.zeros_like(image)
     kernel = np.flipud(np.fliplr(kernel))
     pad = (kernel.shape[0] - 1) // 2
-    # image_padded = np.zeros((height + pad, width + pad))
-    # print(image_padded.shape)
-    # image_padded[pad:-pad, pad:-pad] = image
+    #image_padded = np.zeros((height + 2*pad, width + 2*pad))
+    #print(image_padded.shape)
+    #image_padded[pad:-pad, pad:-pad] = image
     image = cv2.copyMakeBorder(image, pad, pad, pad, pad, cv2.BORDER_DEFAULT)
 
     for row in np.arange(pad, height + pad):

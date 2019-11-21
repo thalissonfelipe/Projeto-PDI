@@ -2,6 +2,7 @@ import imageio
 import numpy as np
 import matplotlib.pyplot as plt 
 from colors import rgb2gray
+from PIL import Image
 
 
 # def pad(x):
