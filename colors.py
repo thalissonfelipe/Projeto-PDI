@@ -66,6 +66,39 @@ def rgb2hsv(r, g, b):
 
     return (h*360, s*100, v*100)
 
+def rgb2hsvC(r, g, b):
+    r, g, b = r / 255.0, g / 255.0, b / 255.0
+    h, s, v = 0, 0, 0
+    maximo = max(r, g, b)
+    minimo = min(r, g, b)
+    dif = maximo - minimo
+
+    v = maximo
+
+    if dif == 0:
+        h = 0
+        s = 0
+    else:
+        s = dif / maximo
+
+        dr = ((maximo - r)/6 + (dif/2))/dif
+        dg = ((maximo - g)/6 + (dif/2))/dif
+        db = ((maximo - b)/6 + (dif/2))/dif
+
+        if r == maximo:
+            h = db - dg
+        elif g == maximo:
+            h = (1/3) + dr - db
+        elif b == maximo:
+            h = (2/3) + dg - dr
+
+        if h < 0:
+            h = h + 1
+        if h > 1:
+            h = h - 1
+
+    return (h*100, s*100, v*100)
+
 
 # Convert HSV colors to RGB
 def hsv2rgb(h, s, v):
@@ -94,6 +127,14 @@ def imgrgb2hsv(img):
         for j in range(img.shape[1]):
             r, g, b = img[i,j,0], img[i,j,1], img[i,j,2]
             h, s, v = rgb2hsv(r,g,b)
+            img[i,j,0], img[i,j,1], img[i,j,2] = h, s, v
+    return img
+
+def imgrgb2hsvC(img):
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            r, g, b = img[i,j,0], img[i,j,1], img[i,j,2]
+            h, s, v = rgb2hsvC(r,g,b)
             img[i,j,0], img[i,j,1], img[i,j,2] = h, s, v
     return img
 

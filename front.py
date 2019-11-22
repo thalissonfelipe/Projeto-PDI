@@ -4,6 +4,7 @@ import colors as cl
 import fourier as fr
 import space_transformations as st
 import steganography as steg
+import compressionFinal as cp
 from tkinter import *
 from tkinter import ttk, colorchooser
 from PIL import ImageTk, Image, ImageDraw
@@ -405,7 +406,40 @@ class main:
         #quad = self.c.create_rectangle((self.img.width - 10, 0, self.img.width, 10), fill="white")
         #self.c.tag_bind(quad, "<B1-Motion>", lambda x: setColor("red"))
     
+    ##COMPACTADOR
+    def compactar_imagem(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = self.img
+        i = np.array(img)
+        url = filedialog.asksaveasfilename(title = "Salvar arquivo")
+        it = cp.run_length_encode(i,url)
+        self.old_img = img
+        #self.img = Image.fromarray(it)
+        #self.old_img = img
+        #self.c.image = ImageTk.PhotoImage(self.img)
+        #self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
+        #self.c.pack()
 
+    def descompactar_imagem(self):
+        #url = 'images/'+self.input.get()
+        #url = self.input
+        #img = Image.open('images/einstein.jpeg')
+        img = self.img
+        i = np.array(img)
+        url = filedialog.askopenfilename(title="Selecione o arquivo que deseja descompactar")
+        it = cp.run_length_decode(url)
+        self.img = Image.fromarray(it)
+        self.size[0] = self.img.width
+        self.size[1] = self.img.height
+        resize = '%02dx%02d+100+100' % (400 + self.size[0], 100 + self.size[1])
+        root.geometry(resize)
+        self.c.config(width=self.size[0], height=self.size[1])
+        self.c.image = ImageTk.PhotoImage(self.img)
+        self.c.create_image(self.size[0]/2, self.size[1]/2, anchor=CENTER, image=self.c.image)
+        self.c.pack()
+    ###################################################################################################################################################
     ##steganography
     def trans_steganography(self):
         tabs = self.controls.tabs()
@@ -1900,7 +1934,8 @@ class main:
         filtermenu.add_command(label='Filtro Sharpen',command=self.efeito_sharpen)
         filtermenu.add_command(label='Filtro Sobel',command=self.efeito_sobel)
         menu.add_cascade(label='Opções',menu=optionmenu)
-        optionmenu.add_command(label='Salvar Canvas',command=self.save)
+        optionmenu.add_command(label='Compactar imagem',command=self.compactar_imagem)
+        optionmenu.add_command(label='Descompactar arquivo',command=self.descompactar_imagem)
         optionmenu.add_command(label='Limpar Canvas',command=self.clear)
         optionmenu.add_command(label='Sair',command=self.master.destroy) 
         
